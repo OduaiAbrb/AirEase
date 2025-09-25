@@ -192,25 +192,207 @@ def test_watchlist_retrieval():
                         if not missing_fields:
                             print_test_result("Watchlist Retrieval API", True, 
                                             f"Retrieved {len(watchlists)} watchlists. Sample: {first_watch['from']} → {first_watch['to']} at ${first_watch['targetPrice']}")
-                            return True
+                            return True, watchlists
                         else:
                             print_test_result("Watchlist Retrieval API", False, f"Missing fields in watchlist data: {missing_fields}")
-                            return False
+                            return False, []
                     else:
                         print_test_result("Watchlist Retrieval API", True, "Retrieved empty watchlist (valid state)")
-                        return True
+                        return True, []
                 else:
                     print_test_result("Watchlist Retrieval API", False, "Watchlists is not a list")
-                    return False
+                    return False, []
             else:
                 print_test_result("Watchlist Retrieval API", False, f"Invalid response structure: {data}")
-                return False
+                return False, []
         else:
             print_test_result("Watchlist Retrieval API", False, f"Status: {response.status_code}, Response: {response.text}")
-            return False
+            return False, []
             
     except Exception as e:
         print_test_result("Watchlist Retrieval API", False, f"Exception: {str(e)}")
+        return False, []
+
+def test_email_notification_system():
+    """Test GET /api/notifications/test - Test email notification system"""
+    print("🔍 Testing Email Notification System...")
+    try:
+        response = requests.get(f"{API_BASE}/notifications/test", timeout=15)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Validate response structure
+            if "message" in data and "result" in data:
+                result = data["result"]
+                
+                # Check if email service returned expected structure
+                if (result.get("success") and 
+                    "emailId" in result and 
+                    "content" in result and
+                    result.get("message") == "Price alert email sent successfully"):
+                    
+                    # Validate email content structure
+                    content = result["content"]
+                    if ("subject" in content and 
+                        "html" in content and 
+                        "text" in content):
+                        
+                        print_test_result("Email Notification System", True, 
+                                        f"Email system working. Subject: {content['subject'][:50]}...")
+                        return True
+                    else:
+                        print_test_result("Email Notification System", False, "Email content missing required fields")
+                        return False
+                else:
+                    print_test_result("Email Notification System", False, f"Invalid email service response: {result}")
+                    return False
+            else:
+                print_test_result("Email Notification System", False, f"Invalid response structure: {data}")
+                return False
+        else:
+            print_test_result("Email Notification System", False, f"Status: {response.status_code}, Response: {response.text}")
+            return False
+            
+    except Exception as e:
+        print_test_result("Email Notification System", False, f"Exception: {str(e)}")
+        return False
+
+def test_price_monitoring():
+    """Test GET /api/flights/check-prices - Trigger manual price monitoring"""
+    print("🔍 Testing Price Monitoring System...")
+    try:
+        response = requests.get(f"{API_BASE}/flights/check-prices", timeout=20)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Validate response structure
+            if "message" in data and "result" in data:
+                result = data["result"]
+                
+                # Check if price monitoring returned expected structure
+                if (result.get("success") and 
+                    "watchesChecked" in result and 
+                    "notificationsSent" in result and
+                    "timestamp" in result):
+                    
+                    watches_checked = result["watchesChecked"]
+                    notifications_sent = result["notificationsSent"]
+                    
+                    print_test_result("Price Monitoring System", True, 
+                                    f"Checked {watches_checked} watches, sent {notifications_sent} notifications")
+                    return True
+                else:
+                    print_test_result("Price Monitoring System", False, f"Invalid price monitoring response: {result}")
+                    return False
+            else:
+                print_test_result("Price Monitoring System", False, f"Invalid response structure: {data}")
+                return False
+        else:
+            print_test_result("Price Monitoring System", False, f"Status: {response.status_code}, Response: {response.text}")
+            return False
+            
+    except Exception as e:
+        print_test_result("Price Monitoring System", False, f"Exception: {str(e)}")
+        return False
+
+def test_send_notification(watch_id=None):
+    """Test POST /api/notifications/send - Send notification for specific watch"""
+    print("🔍 Testing Send Notification API...")
+    try:
+        # Use test data if no watch_id provided
+        test_watch_id = watch_id or "test_watch_id"
+        
+        payload = {
+            "watchId": test_watch_id,
+            "flightData": {
+                "id": "test_flight_123",
+                "from": "AMM",
+                "to": "LHR",
+                "airline": "Qatar Airways",
+                "flightNumber": "QR123",
+                "departureTime": "08:30",
+                "duration": "6h 15m",
+                "price": 450
+            }
+        }
+        
+        response = requests.post(
+            f"{API_BASE}/notifications/send",
+            json=payload,
+            headers={"Content-Type": "application/json"},
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Validate response structure
+            if "success" in data and "message" in data:
+                if data.get("success"):
+                    print_test_result("Send Notification API", True, 
+                                    f"Notification sent successfully: {data['message']}")
+                    return True
+                else:
+                    print_test_result("Send Notification API", False, f"Notification failed: {data['message']}")
+                    return False
+            else:
+                print_test_result("Send Notification API", False, f"Invalid response structure: {data}")
+                return False
+        elif response.status_code == 404:
+            # Expected if watch doesn't exist - this is valid behavior
+            print_test_result("Send Notification API", True, "Correctly returned 404 for non-existent watch")
+            return True
+        else:
+            print_test_result("Send Notification API", False, f"Status: {response.status_code}, Response: {response.text}")
+            return False
+            
+    except Exception as e:
+        print_test_result("Send Notification API", False, f"Exception: {str(e)}")
+        return False
+
+def test_watchlist_toggle(watch_id=None):
+    """Test PUT /api/watchlist/toggle - Toggle watchlist active/inactive status"""
+    print("🔍 Testing Watchlist Toggle API...")
+    try:
+        # Use test data if no watch_id provided
+        test_watch_id = watch_id or "test_watch_id"
+        
+        # Test deactivating a watch
+        payload = {
+            "watchId": test_watch_id,
+            "active": False
+        }
+        
+        response = requests.put(
+            f"{API_BASE}/watchlist/toggle",
+            json=payload,
+            headers={"Content-Type": "application/json"},
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Validate response structure
+            if "success" in data and "message" in data:
+                if data.get("success"):
+                    print_test_result("Watchlist Toggle API", True, 
+                                    f"Watch toggled successfully: {data['message']}")
+                    return True
+                else:
+                    print_test_result("Watchlist Toggle API", False, f"Toggle failed: {data['message']}")
+                    return False
+            else:
+                print_test_result("Watchlist Toggle API", False, f"Invalid response structure: {data}")
+                return False
+        else:
+            print_test_result("Watchlist Toggle API", False, f"Status: {response.status_code}, Response: {response.text}")
+            return False
+            
+    except Exception as e:
+        print_test_result("Watchlist Toggle API", False, f"Exception: {str(e)}")
         return False
 
 def run_all_tests():
