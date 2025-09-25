@@ -167,6 +167,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PHASE 2 TESTED: Enhanced watchlist creation now includes email field, notificationCount (0), and proper active status. All Phase 2 fields verified in MongoDB: email, notificationCount, active, createdAt, lastCheck."
+        - working: true
+          agent: "testing"
+          comment: "✅ CLEANED UP VERSION TESTED: Watchlist creation working perfectly with simplified structure. Successfully creates entries in MongoDB with all required fields (id, from, to, targetPrice, active, createdAt, lastCheck). Data integrity confirmed - created watchlist AMM → LHR at $500 with UUID generation working correctly."
 
   - task: "Watchlist Retrieval API"
     implemented: true
