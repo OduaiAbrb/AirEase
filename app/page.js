@@ -1392,6 +1392,26 @@ export default function App() {
         <div className="absolute top-60 left-1/2 w-8 h-8 bg-yellow-400/20 rounded-full animate-ping delay-300"></div>
         <div className="absolute bottom-20 right-1/3 w-14 h-14 bg-green-400/20 rounded-full animate-bounce delay-500"></div>
 
+        {/* HOMEPAGE Plane Animation with Trail */}
+        {showPlaneAnimation && (
+          <div className="fixed top-0 left-0 w-full h-full z-30 pointer-events-none">
+            <div className="absolute top-1/2 transform -translate-y-1/2 animate-[flyAcrossHomepage_6s_ease-in-out_forwards]">
+              {/* Enhanced Trail with multiple segments */}
+              <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
+                <div className="w-40 h-2 bg-gradient-to-r from-transparent via-blue-400 to-blue-600 opacity-80 animate-[fadeTrailHomepage_6s_ease-in-out_forwards] rounded-full"></div>
+                <div className="w-32 h-1 bg-gradient-to-r from-transparent via-white to-blue-300 opacity-60 animate-[fadeTrailHomepage_6s_ease-in-out_forwards] rounded-full mt-1"></div>
+              </div>
+              {/* Enhanced Plane */}
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
+                <Plane className="h-10 w-10 text-white transform rotate-12" />
+              </div>
+              {/* Sparkle effects */}
+              <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full opacity-80 animate-ping"></div>
+              <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-200 rounded-full opacity-60 animate-pulse delay-200"></div>
+            </div>
+          </div>
+        )}
+
         {/* Notifications */}
         <div className="fixed top-4 right-4 z-50 space-y-2">
           {notifications.map(notification => (
