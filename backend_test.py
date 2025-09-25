@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Airease Backend API Testing Script
-Tests all backend API endpoints for functionality and data integrity
+Airease Backend API Testing Script - Cleaned Up Version
+Tests the simplified Google Flights-style backend functionality
 """
 
 import requests
@@ -10,8 +10,8 @@ import sys
 import os
 from datetime import datetime
 
-# Get base URL from environment - test locally first
-BASE_URL = "http://localhost:3000"
+# Get base URL from environment
+BASE_URL = "https://airease.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 def print_test_result(test_name, success, details=""):
