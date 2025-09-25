@@ -353,6 +353,16 @@ export default function App() {
                       
                       <div className="flex flex-col space-y-2">
                         <Button 
+                          onClick={() => setSelectedFlight(flight)}
+                          variant="outline"
+                          size="sm"
+                          className="border-purple-200 hover:bg-purple-50"
+                        >
+                          <Brain className="h-4 w-4 mr-1" />
+                          AI Travel Guide
+                        </Button>
+                        
+                        <Button 
                           onClick={() => addToWatchlist(flight)}
                           variant="outline"
                           size="sm"
@@ -361,6 +371,7 @@ export default function App() {
                           <Heart className="h-4 w-4 mr-1" />
                           Watch & Get Alerts
                         </Button>
+                        
                         <Button 
                           size="sm"
                           className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
