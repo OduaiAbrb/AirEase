@@ -226,88 +226,34 @@ backend:
           comment: "✅ CLEANED UP VERSION TESTED: Price monitoring system working perfectly with simplified mock implementation. GET /api/flights/check-prices returns proper response structure (success: true, watchesChecked: 3, notificationsSent: 1, timestamp). Console shows clean price check process with 1-second simulation delay. Simplified but functional price monitoring confirmed."
 
   - task: "Send Notification API"
-    implemented: true
-    working: true
+    implemented: false
+    working: "NA"
     file: "/app/app/api/[[...path]]/route.js"
     stuck_count: 0
-    priority: "high"
+    priority: "low"
     needs_retesting: false
     status_history:
         - working: true
           agent: "testing"
           comment: "✅ PHASE 2 TESTED: POST /api/notifications/send endpoint working perfectly. Successfully sends price alert emails for specific watches with proper flight data. Email content generation and delivery simulation working correctly."
+        - working: "NA"
+          agent: "testing"
+          comment: "❌ CLEANED UP VERSION: POST /api/notifications/send endpoint removed in cleanup. Feature simplified to basic email testing only via GET /api/notifications/test."
 
   - task: "Watchlist Toggle API"
-    implemented: true
-    working: true
+    implemented: false
+    working: "NA"
     file: "/app/app/api/[[...path]]/route.js"
     stuck_count: 0
-    priority: "high"
+    priority: "low"
     needs_retesting: false
     status_history:
         - working: true
           agent: "testing"
           comment: "✅ PHASE 2 TESTED: PUT /api/watchlist/toggle endpoint working perfectly. Successfully toggles watchlist active/inactive status and updates MongoDB with proper timestamps. Verified in database that active status changed from true to false with updatedAt timestamp."
-
-  - task: "AI Complete Recommendations API"
-    implemented: true
-    working: true
-    file: "/app/app/api/[[...path]]/route.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
+        - working: "NA"
           agent: "testing"
-          comment: "✅ PHASE 3 TESTED: POST /api/ai/recommendations endpoint working perfectly. Returns comprehensive AI recommendations including packingRecs, travelTips, and timeBudget. Azure OpenAI integration confirmed working for packing recommendations. All response structures valid with proper weather integration, travel tips generation, and time budget calculations."
-
-  - task: "AI Packing Recommendations API"
-    implemented: true
-    working: true
-    file: "/app/lib/aiRecommendations.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ PHASE 3 TESTED: POST /api/ai/packing endpoint working perfectly. Weather data integrated (12°C, partly cloudy for LHR). All packing categories present: clothing, weather, essentials. AI-generated recommendations with proper fallback mechanism. Destination-specific advice included."
-
-  - task: "AI Travel Tips API"
-    implemented: true
-    working: true
-    file: "/app/lib/aiRecommendations.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ PHASE 3 TESTED: POST /api/ai/travel-tips endpoint working perfectly. Generated 4 travel tips for London, UK with valid structure (category + tip). Tips cover Transportation, Weather, Local Customs, and Insider Tips. AI integration confirmed working with proper destination mapping."
-
-  - task: "AI Time Budget API"
-    implemented: true
-    working: true
-    file: "/app/lib/aiRecommendations.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ PHASE 3 TESTED: POST /api/ai/time-budget endpoint working perfectly after minor fix. Calculates smart time budget with 5 segments: Travel to Airport (45min), Check-in (60min), Security (45min), Airport Navigation (15min), Boarding (30min). Total 195 minutes, leave by 05:15 AM. AI integration working with proper international flight detection."
-
-  - task: "Azure OpenAI Integration"
-    implemented: true
-    working: true
-    file: "/app/lib/aiRecommendations.js"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✅ PHASE 3 TESTED: Azure OpenAI integration working perfectly across all 3 AI endpoints (packing, travel-tips, time-budget). GPT-4o deployment successfully connected. Environment variables properly configured. AI responses being generated and parsed correctly with fallback mechanisms in place for reliability."
+          comment: "❌ CLEANED UP VERSION: PUT /api/watchlist/toggle endpoint removed in cleanup. Watchlist management simplified to creation and retrieval only."
 
 frontend:
   - task: "Frontend UI"
