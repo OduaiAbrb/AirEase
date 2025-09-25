@@ -222,7 +222,7 @@ export default function App() {
             Monitor flight prices continuously, get notified when prices drop, and auto-purchase at your target price
           </p>
           <Badge className="mt-4 bg-gradient-to-r from-green-500 to-blue-500 text-white">
-            ✨ NEW: Smart Email Notifications & Price Monitoring
+            ✨ NEW: AI-Powered Travel Assistant & Smart Recommendations
           </Badge>
         </div>
 
