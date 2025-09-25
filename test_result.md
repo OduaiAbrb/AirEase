@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the enhanced Phase 3 Airease backend AI functionality with Azure OpenAI integration"
+user_problem_statement: "Test the cleaned up Airease backend functionality with simplified Google Flights-style UI"
 
 backend:
   - task: "API Health Check Endpoint"
