@@ -266,31 +266,45 @@ class AireaseProductionTester:
                 ai_recommendations = result.get('aiRecommendations')
                 success_check = result.get('success', False)
                 
-                # Check for AI features in email
-                ai_features = result.get('aiFeatures', {})
-                required_ai_features = ['packingRecommendations', 'travelTips', 'timeBudget', 'weather']
-                ai_features_count = sum(1 for feature in required_ai_features if feature in ai_features)
-                
-                if success_check and ai_recommendations and ai_features_count >= 3:
-                    self.log_test(
-                        "Enhanced Email Notifications", 
-                        True, 
-                        f"AI-enhanced email generated successfully. AI features: {ai_features_count}/4",
-                        {"ai_features": list(ai_features.keys()), "success": success_check}
-                    )
+                # Check for AI recommendations structure
+                if ai_recommendations:
+                    # Check for required AI components in recommendations
+                    required_components = ['packingList', 'travelTips', 'timeManagement', 'weatherInfo']
+                    ai_components_count = sum(1 for comp in required_components if comp in ai_recommendations)
+                    
+                    # Check for emergentLlm flag
+                    emergent_llm_check = ai_recommendations.get('emergentLlm', False)
+                    ai_generated_check = ai_recommendations.get('aiGenerated', False)
+                    
+                    if success_check and ai_components_count >= 3 and emergent_llm_check and ai_generated_check:
+                        self.log_test(
+                            "Enhanced Email Notifications", 
+                            True, 
+                            f"AI-enhanced email generated successfully. AI components: {ai_components_count}/4, emergentLlm: {emergent_llm_check}",
+                            {"ai_components": ai_components_count, "emergentLlm": emergent_llm_check, "success": success_check}
+                        )
+                    else:
+                        issues = []
+                        if not success_check:
+                            issues.append("Email sending failed")
+                        if ai_components_count < 3:
+                            issues.append(f"Insufficient AI components: {ai_components_count}/4")
+                        if not emergent_llm_check:
+                            issues.append("emergentLlm flag not set")
+                        if not ai_generated_check:
+                            issues.append("aiGenerated flag not set")
+                            
+                        self.log_test(
+                            "Enhanced Email Notifications", 
+                            False, 
+                            f"Issues: {'; '.join(issues)}",
+                            data
+                        )
                 else:
-                    issues = []
-                    if not success_check:
-                        issues.append("Email sending failed")
-                    if not ai_recommendations:
-                        issues.append("No AI recommendations in email")
-                    if ai_features_count < 3:
-                        issues.append(f"Insufficient AI features: {ai_features_count}/4")
-                        
                     self.log_test(
                         "Enhanced Email Notifications", 
                         False, 
-                        f"Issues: {'; '.join(issues)}",
+                        "No AI recommendations found in email response",
                         data
                     )
             else:
