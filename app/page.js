@@ -159,8 +159,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Notifications */}
+      {notifications.map(notification => (
+        <Alert key={notification.id} className="fixed top-4 right-4 max-w-md z-50 border-green-200 bg-green-50">
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription>{notification.message}</AlertDescription>
+        </Alert>
+      ))}
+
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -176,6 +184,26 @@ export default function App() {
                 <Bell className="h-3 w-3 mr-1" />
                 {watchlists.length} Watches Active
               </Badge>
+              
+              <Button 
+                onClick={testEmailNotification}
+                variant="outline" 
+                size="sm"
+                className="border-blue-200 hover:bg-blue-50"
+              >
+                <Mail className="h-4 w-4 mr-1" />
+                Test Email
+              </Button>
+              
+              <Button 
+                onClick={triggerPriceCheck}
+                variant="outline" 
+                size="sm"
+                className="border-purple-200 hover:bg-purple-50"
+              >
+                <PlayCircle className="h-4 w-4 mr-1" />
+                Check Prices
+              </Button>
             </div>
           </div>
         </div>
@@ -190,6 +218,9 @@ export default function App() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Monitor flight prices continuously, get notified when prices drop, and auto-purchase at your target price
           </p>
+          <Badge className="mt-4 bg-gradient-to-r from-green-500 to-blue-500 text-white">
+            ✨ NEW: Smart Email Notifications & Price Monitoring
+          </Badge>
         </div>
 
         {/* Flight Search */}
@@ -201,7 +232,7 @@ export default function App() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-6 gap-4 mb-4">
+            <div className="grid md:grid-cols-7 gap-4 mb-4">
               <div>
                 <label className="text-sm font-medium mb-1 block">From</label>
                 <div className="relative">
@@ -242,19 +273,6 @@ export default function App() {
               </div>
               
               <div>
-                <label className="text-sm font-medium mb-1 block">Return</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input 
-                    type="date"
-                    className="pl-10"
-                    value={searchParams.returnDate}
-                    onChange={(e) => setSearchParams({...searchParams, returnDate: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div>
                 <label className="text-sm font-medium mb-1 block">Max Price</label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -264,6 +282,20 @@ export default function App() {
                     className="pl-10"
                     value={searchParams.maxPrice}
                     onChange={(e) => setSearchParams({...searchParams, maxPrice: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input 
+                    type="email"
+                    placeholder="your@email.com"
+                    className="pl-10"
+                    value={searchParams.email}
+                    onChange={(e) => setSearchParams({...searchParams, email: e.target.value})}
                   />
                 </div>
               </div>
