@@ -100,13 +100,14 @@ export async function GET(request) {
     }
     
     if (pathname === '/api/notifications/test') {
-      // Test email notification
+      // Test AI-enhanced email notification
       const mockWatch = {
         id: 'test_watch',
         from: 'AMM',
         to: 'LHR',
         targetPrice: 500,
-        email: 'user@example.com'
+        email: 'user@example.com',
+        tripType: 'leisure'
       }
       
       const mockFlight = {
@@ -122,9 +123,25 @@ export async function GET(request) {
       
       const result = await sendPriceAlert(mockWatch, mockFlight)
       return NextResponse.json({ 
-        message: 'Test email sent',
+        message: 'Test AI-enhanced email sent',
         result 
       })
+    }
+    
+    if (pathname === '/api/ai/recommendations') {
+      return NextResponse.json({ error: 'Use POST method for AI recommendations' }, { status: 405 })
+    }
+    
+    if (pathname === '/api/ai/packing') {
+      return NextResponse.json({ error: 'Use POST method for packing recommendations' }, { status: 405 })
+    }
+    
+    if (pathname === '/api/ai/travel-tips') {
+      return NextResponse.json({ error: 'Use POST method for travel tips' }, { status: 405 })
+    }
+    
+    if (pathname === '/api/ai/time-budget') {
+      return NextResponse.json({ error: 'Use POST method for time budget' }, { status: 405 })
     }
     
     return NextResponse.json({ error: 'Endpoint not found' }, { status: 404 })
