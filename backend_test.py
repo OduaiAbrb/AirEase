@@ -23,10 +23,10 @@ def print_test_result(test_name, success, details=""):
     print()
 
 def test_health_check():
-    """Test GET /api/ - Basic health check"""
+    """Test GET /api - Basic health check"""
     print("🔍 Testing API Health Check...")
     try:
-        response = requests.get(f"{API_BASE}/", timeout=10)
+        response = requests.get(f"{API_BASE}", timeout=10)
         
         if response.status_code == 200:
             data = response.json()
