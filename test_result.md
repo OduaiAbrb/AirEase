@@ -125,6 +125,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PHASE 3 TESTED: Health check working perfectly with version 2.0. Features include Flight Search, Price Monitoring, Email Alerts, and Watchlists. Ready for AI integration testing."
+        - working: true
+          agent: "testing"
+          comment: "✅ CLEANED UP VERSION TESTED: Health check endpoint working perfectly with simplified response. Returns message 'Airease API is running!', version 1.0, status 'healthy', and timestamp. Clean JSON response structure confirmed."
 
   - task: "Flight Search API"
     implemented: true
