@@ -1424,18 +1424,45 @@ export default function App() {
               </div>
               
               <div className="flex items-center space-x-2">
-                <Link href="/boarding-pass">
-                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 border border-white/30 transform hover:scale-105 transition-all duration-200">
-                    <Camera className="h-4 w-4 mr-1" />
-                    Scan Pass
-                  </Button>
-                </Link>
-                <Link href="/auto-purchase">
-                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 border border-white/30 transform hover:scale-105 transition-all duration-200">
-                    <CreditCard className="h-4 w-4 mr-1" />
-                    Auto-Buy
-                  </Button>
-                </Link>
+                {isLoggedIn ? (
+                  <>
+                    <div className="flex items-center space-x-3 bg-white/20 rounded-lg px-3 py-2">
+                      <div className="text-2xl">{currentUser.avatar}</div>
+                      <div>
+                        <div className="text-sm font-medium text-white">{currentUser.name}</div>
+                        <div className="text-xs text-blue-200">{currentUser.travelStatus}</div>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={handleLogout}
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-white hover:bg-white/20"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      onClick={() => setShowLogin(true)}
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-white hover:bg-white/20 border border-white/30"
+                    >
+                      <LogIn className="h-4 w-4 mr-1" />
+                      Sign In
+                    </Button>
+                    <Button 
+                      onClick={() => setShowSignup(true)}
+                      size="sm" 
+                      className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
+                    >
+                      <UserPlus className="h-4 w-4 mr-1" />
+                      Join Free
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
