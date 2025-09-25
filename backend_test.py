@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend Testing for Airease Application
-Testing the completely rebuilt application with Emergent LLM integration for PRODUCTION environment
+Testing all new enhancements including missed flight recovery and enhanced realistic data
 """
 
 import requests
@@ -9,10 +9,10 @@ import json
 import time
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
-# Production URL configuration - fallback to local for testing
-BASE_URL = "http://localhost:3000"
+# Production URL configuration
+BASE_URL = "https://tripmonitor-2.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 class AireaseProductionTester:
