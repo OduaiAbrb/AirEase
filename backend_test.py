@@ -437,8 +437,80 @@ class AireaseProductionTester:
         except Exception as e:
             self.log_test("AI-Enhanced Watchlist Creation", False, f"Exception: {str(e)}")
 
+    def test_missed_flight_recovery(self):
+        """Test 7: NEW FEATURE - Missed Flight Recovery API"""
+        try:
+            print("🔍 Testing Missed Flight Recovery API...")
+            
+            recovery_data = {
+                "flightNumber": "QR456",
+                "originalDate": datetime.now().strftime("%Y-%m-%d"),
+                "from": "AMM",
+                "to": "LHR",
+                "reason": "traffic"
+            }
+            
+            response = self.session.post(f"{API_BASE}/missed-flight/recovery", json=recovery_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                success_check = data.get('success', False)
+                options = data.get('options', [])
+                emergency_contacts = data.get('emergencyContacts', {})
+                recommendations = data.get('recommendations', [])
+                
+                # Check for same-day and next-day options
+                same_day_options = [opt for opt in options if opt.get('type') == 'same-day']
+                next_day_options = [opt for opt in options if opt.get('type') == 'next-day']
+                
+                # Check emergency contacts
+                contact_types = ['airline', 'airport', 'insurance', 'embassy']
+                contacts_present = sum(1 for contact_type in contact_types if contact_type in emergency_contacts)
+                
+                if success_check and len(options) > 0 and contacts_present >= 3 and len(recommendations) > 0:
+                    self.log_test(
+                        "Missed Flight Recovery", 
+                        True, 
+                        f"Recovery options found: {len(same_day_options)} same-day, {len(next_day_options)} next-day. Emergency contacts: {contacts_present}/4",
+                        {
+                            "total_options": len(options), 
+                            "same_day": len(same_day_options), 
+                            "next_day": len(next_day_options),
+                            "emergency_contacts": contacts_present,
+                            "recommendations": len(recommendations)
+                        }
+                    )
+                else:
+                    issues = []
+                    if not success_check:
+                        issues.append("Recovery request failed")
+                    if len(options) == 0:
+                        issues.append("No recovery options returned")
+                    if contacts_present < 3:
+                        issues.append(f"Insufficient emergency contacts: {contacts_present}/4")
+                    if len(recommendations) == 0:
+                        issues.append("No recovery recommendations provided")
+                        
+                    self.log_test(
+                        "Missed Flight Recovery", 
+                        False, 
+                        f"Issues: {'; '.join(issues)}",
+                        data
+                    )
+            else:
+                self.log_test(
+                    "Missed Flight Recovery", 
+                    False, 
+                    f"HTTP {response.status_code}: {response.text}",
+                    {"status_code": response.status_code}
+                )
+                
+        except Exception as e:
+            self.log_test("Missed Flight Recovery", False, f"Exception: {str(e)}")
+
     def test_cors_and_production_readiness(self):
-        """Test 7: CORS Headers and Production Readiness"""
+        """Test 8: CORS Headers and Production Readiness"""
         try:
             print("🔍 Testing CORS and Production Readiness...")
             
