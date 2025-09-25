@@ -183,6 +183,8 @@ metadata:
   version: "1.0"
   test_sequence: 1
   run_ui: false
+  last_tested: "2025-09-25T11:40:44"
+  backend_status: "all_working_locally"
 
 test_plan:
   current_focus: []
