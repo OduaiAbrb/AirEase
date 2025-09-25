@@ -327,12 +327,12 @@ frontend:
 
 metadata:
   created_by: "testing_agent"
-  version: "3.0"
-  test_sequence: 3
-  run_ui: false
-  last_tested: "2025-09-25T12:36:25"
-  backend_status: "all_phase3_ai_working_locally"
-  phase3_features_tested: ["ai_complete_recommendations", "ai_packing", "ai_travel_tips", "ai_time_budget", "enhanced_email_with_ai", "azure_openai_integration"]
+  version: "4.0"
+  test_sequence: 4
+  run_ui: true
+  last_tested: "2025-09-25T12:57:30"
+  backend_status: "all_cleaned_up_working_locally"
+  cleaned_up_features_tested: ["health_check", "flight_search", "watchlist_creation", "watchlist_retrieval", "email_notifications", "price_monitoring", "google_flights_ui"]
 
 test_plan:
   current_focus: []
