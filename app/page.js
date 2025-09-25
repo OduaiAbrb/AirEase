@@ -26,6 +26,8 @@ export default function App() {
   const [watchlists, setWatchlists] = useState([])
   const [notifications, setNotifications] = useState([])
   const [showEmailDemo, setShowEmailDemo] = useState(false)
+  const [selectedFlight, setSelectedFlight] = useState(null)
+  const [aiRecommendations, setAIRecommendations] = useState(null)
 
   // Load watchlists on component mount
   useEffect(() => {
