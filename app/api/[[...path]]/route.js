@@ -198,14 +198,84 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Watch not found' }, { status: 404 })
       }
       
-      // Send notification
+      // Send AI-enhanced notification
       const result = await sendPriceAlert(watch, flightData)
       
       return NextResponse.json({ 
         success: result.success,
         message: result.message,
-        emailContent: result.content
+        emailContent: result.content,
+        aiFeatures: result.aiFeatures
       })
+    }
+    
+    if (pathname === '/api/ai/recommendations') {
+      const { flightData, tripType, duration } = await request.json()
+      
+      try {
+        const packingRecs = await generatePackingRecommendations(flightData, { tripType, duration })
+        const travelTips = await generateTravelTips(flightData, { tripType, duration })
+        const timeBudget = await calculateTimeBudget(flightData)
+        
+        return NextResponse.json({
+          success: true,
+          packingRecs,
+          travelTips,
+          timeBudget,
+          timestamp: new Date().toISOString()
+        })
+      } catch (error) {
+        console.error('AI recommendations error:', error)
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to generate recommendations' 
+        }, { status: 500 })
+      }
+    }
+    
+    if (pathname === '/api/ai/packing') {
+      const { flightData, tripType, duration } = await request.json()
+      
+      try {
+        const recommendations = await generatePackingRecommendations(flightData, { tripType, duration })
+        return NextResponse.json(recommendations)
+      } catch (error) {
+        console.error('Packing recommendations error:', error)
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to generate packing recommendations' 
+        }, { status: 500 })
+      }
+    }
+    
+    if (pathname === '/api/ai/travel-tips') {
+      const { flightData, tripType } = await request.json()
+      
+      try {
+        const tips = await generateTravelTips(flightData, { tripType })
+        return NextResponse.json(tips)
+      } catch (error) {
+        console.error('Travel tips error:', error)
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to generate travel tips' 
+        }, { status: 500 })
+      }
+    }
+    
+    if (pathname === '/api/ai/time-budget') {
+      const { flightData, userLocation } = await request.json()
+      
+      try {
+        const timeBudget = await calculateTimeBudget(flightData, userLocation)
+        return NextResponse.json(timeBudget)
+      } catch (error) {
+        console.error('Time budget error:', error)
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Failed to calculate time budget' 
+        }, { status: 500 })
+      }
     }
     
     return NextResponse.json({ error: 'Endpoint not found' }, { status: 404 })
