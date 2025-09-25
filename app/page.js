@@ -50,6 +50,69 @@ export default function App() {
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
 
+  // Authentication States
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showSignup, setShowSignup] = useState(false)
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' })
+  const [signupForm, setSignupForm] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    confirmPassword: '',
+    travelPreference: 'budget'
+  })
+
+  // Synthetic User Database
+  const syntheticUsers = {
+    'john@airease.com': {
+      id: 'user_001',
+      name: 'John Thompson',
+      email: 'john@airease.com',
+      password: 'password123',
+      avatar: '👨‍💼',
+      preferenceLevel: 'Business Traveler',
+      totalFlights: 47,
+      savedAmount: '$12,400',
+      favoriteDestinations: ['LHR', 'JFK', 'DXB'],
+      travelStatus: 'Gold Member',
+      joinedDate: '2023-03-15',
+      upcomingTrips: 3,
+      notifications: true
+    },
+    'sarah@airease.com': {
+      id: 'user_002', 
+      name: 'Sarah Chen',
+      email: 'sarah@airease.com',
+      password: 'travel2024',
+      avatar: '👩‍💻',
+      preferenceLevel: 'Adventure Seeker',
+      totalFlights: 23,
+      savedAmount: '$5,890',
+      favoriteDestinations: ['CDG', 'NRT', 'SYD'],
+      travelStatus: 'Explorer',
+      joinedDate: '2023-08-22',
+      upcomingTrips: 1,
+      notifications: true
+    },
+    'mike@airease.com': {
+      id: 'user_003',
+      name: 'Mike Rodriguez',
+      email: 'mike@airease.com', 
+      password: 'flyme456',
+      avatar: '👨‍🎨',
+      preferenceLevel: 'Budget Conscious',
+      totalFlights: 12,
+      savedAmount: '$2,150',
+      favoriteDestinations: ['AMM', 'IST', 'CAI'],
+      travelStatus: 'Smart Saver',
+      joinedDate: '2024-01-10',
+      upcomingTrips: 0,
+      notifications: false
+    }
+  }
+
   // Splash screen effect
   useEffect(() => {
     const timer = setTimeout(() => {
