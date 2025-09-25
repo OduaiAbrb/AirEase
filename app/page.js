@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Plane, Search, MapPin, Calendar, DollarSign, Clock, Bell, Heart, Star } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Plane, Search, MapPin, Calendar, DollarSign, Clock, Bell, Heart, Star, Mail, CheckCircle, PlayCircle, PauseCircle, Trash2 } from "lucide-react"
 
 export default function App() {
   const [searchParams, setSearchParams] = useState({
