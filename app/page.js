@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plane, Search, MapPin, Calendar, DollarSign, Heart, Clock, ArrowRight, Mail, Brain, CheckCircle, AlertCircle, Sparkles, Zap, Target, Settings, Filter, Camera, CreditCard, Star, Wifi, Coffee, Monitor, Shield, TrendingDown, TrendingUp, AlertTriangle, Phone, LifeBuoy, Navigation, Map, Compass, Route } from "lucide-react"
+import { Plane, Search, MapPin, Calendar, DollarSign, Heart, Clock, ArrowRight, Mail, Brain, CheckCircle, AlertCircle, Sparkles, Zap, Target, Settings, Filter, Camera, CreditCard, Star, Wifi, Coffee, Monitor, Shield, TrendingDown, TrendingUp, AlertTriangle, Phone, LifeBuoy, Navigation, Map, Compass, Route, MessageCircle, Send, User, Bookmark, Bell, Globe, Headphones, HelpCircle } from "lucide-react"
 import Link from 'next/link'
 import { generateRealisticFlights } from '../lib/realisticFlightData.js'
 
@@ -43,6 +43,12 @@ export default function App() {
   const [missedFlightData, setMissedFlightData] = useState(null)
   const [recoveryOptions, setRecoveryOptions] = useState([])
   const [recoveryLoading, setRecoveryLoading] = useState(false)
+  
+  // New AI Assistant Screen States
+  const [showPlaneAnimation, setShowPlaneAnimation] = useState(false)
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
 
   // Splash screen effect
   useEffect(() => {
@@ -52,6 +58,15 @@ export default function App() {
 
     return () => clearTimeout(timer)
   }, [])
+
+  // Plane animation effect for AI Assistant page
+  useEffect(() => {
+    if (currentPage === 'ai-assistant') {
+      setShowPlaneAnimation(true)
+      const timer = setTimeout(() => setShowPlaneAnimation(false), 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [currentPage])
 
   const addNotification = (message, type = 'success') => {
     const notification = { id: Date.now(), message, type }
@@ -428,11 +443,22 @@ export default function App() {
     return matches
   }
 
-  // Enhanced AI recommendations with destination info and airport navigation
+  // Enhanced AI recommendations - now redirects to dedicated screen
   const getAIRecommendations = async (flight) => {
     setSelectedFlight(flight)
+    setCurrentPage('ai-assistant')
     setAILoading(true)
     setAIRecommendations(null)
+    
+    // Initialize welcome chat message
+    setChatMessages([
+      {
+        id: 1,
+        type: 'bot',
+        message: `Welcome! I'm your AI travel assistant for flight ${flight.flightNumber} to ${flight.toCity}. How can I help you today?`,
+        timestamp: new Date()
+      }
+    ])
     
     try {
       const response = await fetch('/api/flights/ai-recommendations', {
@@ -463,6 +489,59 @@ export default function App() {
     }
     
     setAILoading(false)
+  }
+
+  // Chat handler
+  const handleChatSubmit = async () => {
+    if (!chatInput.trim()) return
+    
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      message: chatInput,
+      timestamp: new Date()
+    }
+    
+    setChatMessages(prev => [...prev, userMessage])
+    setChatInput('')
+    setChatLoading(true)
+    
+    // Simulate AI response
+    setTimeout(() => {
+      const responses = {
+        'gate': `Your gate is ${aiRecommendations?.gateInfo?.gate || 'A12'} in ${aiRecommendations?.gateInfo?.terminal || 'Terminal 5'}. It's about ${aiRecommendations?.gateInfo?.walkTime || '10 minutes'} walk from security.`,
+        'weather': `The weather in ${aiRecommendations?.destinationInfo?.city || selectedFlight?.toCity} is ${aiRecommendations?.weatherInfo?.temp || '15'}°C and ${aiRecommendations?.weatherInfo?.condition || 'partly cloudy'}. Perfect for sightseeing!`,
+        'food': `Great question! In ${aiRecommendations?.destinationInfo?.city || selectedFlight?.toCity}, you must try the local specialties. I recommend exploring local markets and authentic restaurants.`,
+        'delay': `I'll check for any delays on your flight ${selectedFlight?.flightNumber}. Currently showing on-time departure at ${selectedFlight?.departureTime}. I'll notify you of any changes!`,
+        'emergency': `For emergencies, contact the airline at their 24/7 helpline. I can also help you find alternative flights if needed. Is there a specific emergency you need help with?`,
+        'default': `I'd be happy to help! I can assist with gate information, weather updates, local recommendations, flight delays, or any travel emergencies. What would you like to know?`
+      }
+      
+      const lowerInput = chatInput.toLowerCase()
+      let response = responses.default
+      
+      if (lowerInput.includes('gate') || lowerInput.includes('terminal')) {
+        response = responses.gate
+      } else if (lowerInput.includes('weather') || lowerInput.includes('temperature')) {
+        response = responses.weather
+      } else if (lowerInput.includes('food') || lowerInput.includes('eat') || lowerInput.includes('restaurant')) {
+        response = responses.food
+      } else if (lowerInput.includes('delay') || lowerInput.includes('late') || lowerInput.includes('time')) {
+        response = responses.delay
+      } else if (lowerInput.includes('emergency') || lowerInput.includes('help') || lowerInput.includes('problem')) {
+        response = responses.emergency
+      }
+      
+      const botMessage = {
+        id: Date.now() + 1,
+        type: 'bot',
+        message: response,
+        timestamp: new Date()
+      }
+      
+      setChatMessages(prev => [...prev, botMessage])
+      setChatLoading(false)
+    }, 1500)
   }
 
   const proceedToBooking = (flight) => {
@@ -508,6 +587,496 @@ export default function App() {
     }
     
     setRecoveryLoading(false)
+  }
+
+  // DEDICATED AI ASSISTANT SCREEN
+  if (currentPage === 'ai-assistant') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+        
+        {/* Plane Animation with Trail */}
+        {showPlaneAnimation && (
+          <div className="fixed top-0 left-0 w-full h-full z-40 pointer-events-none">
+            <div className="absolute top-1/2 transform -translate-y-1/2 animate-[flyAcross_4s_ease-in-out_forwards]">
+              {/* Trail */}
+              <div className="absolute top-1/2 left-0 transform -translate-y-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-60 animate-[fadeTrail_4s_ease-in-out_forwards]"></div>
+              {/* Plane */}
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-xl">
+                <Plane className="h-8 w-8 text-white" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Notifications */}
+        <div className="fixed top-4 right-4 z-50 space-y-2">
+          {notifications.map(notification => (
+            <Alert 
+              key={notification.id} 
+              className={`max-w-md shadow-2xl border-0 transform animate-in slide-in-from-right-5 duration-300 ${
+                notification.type === 'error' ? 'bg-red-500/90 text-white' : 
+                notification.type === 'info' ? 'bg-blue-500/90 text-white' :
+                'bg-green-500/90 text-white'
+              }`}
+            >
+              {notification.type === 'error' ? <AlertCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+              <AlertDescription>{notification.message}</AlertDescription>
+            </Alert>
+          ))}
+        </div>
+
+        {/* Header */}
+        <header className="relative z-10 bg-white/10 backdrop-blur-md border-b border-white/20">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setCurrentPage('results')}
+                  className="text-indigo-700 hover:bg-white/20"
+                >
+                  ← Back to Flights
+                </Button>
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <Brain className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-lg font-bold text-indigo-900">AI Travel Assistant</h1>
+                    <p className="text-xs text-indigo-600">Personal flight companion</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Badge className="bg-purple-100 text-purple-800">
+                  Flight {selectedFlight?.flightNumber}
+                </Badge>
+                <Badge className="bg-blue-100 text-blue-800">
+                  {selectedFlight?.from} → {selectedFlight?.to}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid lg:grid-cols-3 gap-8">
+            
+            {/* Left Column - User Profile & Ticket Details */}
+            <div className="lg:col-span-1 space-y-6">
+              
+              {/* User Profile Card */}
+              <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                <CardHeader className="text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <User className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-xl text-gray-900">Travel Profile</CardTitle>
+                  <p className="text-sm text-gray-600">{searchParams.email}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                      <Bookmark className="h-4 w-4 text-purple-600" />
+                      <div>
+                        <div className="font-medium text-gray-900">Preference Level</div>
+                        <div className="text-sm text-gray-600">Experienced Traveler</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                      <Bell className="h-4 w-4 text-blue-600" />
+                      <div>
+                        <div className="font-medium text-gray-900">Notifications</div>
+                        <div className="text-sm text-gray-600">All alerts enabled</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                      <Globe className="h-4 w-4 text-green-600" />
+                      <div>
+                        <div className="font-medium text-gray-900">Travel Status</div>
+                        <div className="text-sm text-gray-600">Ready to fly</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Ticket Details Card */}
+              {selectedFlight && (
+                <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
+                      <CreditCard className="h-5 w-5" />
+                      Your Ticket
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl">
+                      <div className="text-2xl font-bold text-gray-900 mb-2">{selectedFlight.flightNumber}</div>
+                      <div className="text-lg text-gray-700">{selectedFlight.airline}</div>
+                      <div className="text-sm text-gray-600 mt-2">{selectedFlight.aircraft}</div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-gray-900">From</div>
+                          <div className="text-sm text-gray-600">{selectedFlight.fromCity} ({selectedFlight.from})</div>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-gray-400" />
+                        <div className="text-right">
+                          <div className="font-medium text-gray-900">To</div>
+                          <div className="text-sm text-gray-600">{selectedFlight.toCity} ({selectedFlight.to})</div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-orange-50 rounded-lg">
+                          <div className="font-medium text-gray-900 flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            Departure
+                          </div>
+                          <div className="text-sm text-gray-600">{selectedFlight.departureTime}</div>
+                        </div>
+                        
+                        <div className="p-3 bg-green-50 rounded-lg">
+                          <div className="font-medium text-gray-900 flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            Arrival
+                          </div>
+                          <div className="text-sm text-gray-600">{selectedFlight.arrivalTime}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 bg-blue-50 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-900">Price</span>
+                          <span className="text-2xl font-bold text-blue-600">${selectedFlight.price}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      <Button 
+                        onClick={() => proceedToBooking(selectedFlight)}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                        size="sm"
+                      >
+                        <CreditCard className="h-4 w-4 mr-1" />
+                        Book Now
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => scanBoardingPass(selectedFlight)}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Camera className="h-4 w-4 mr-1" />
+                        Scan Pass
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Quick Actions */}
+              <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                <CardHeader>
+                  <CardTitle className="text-gray-900">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button variant="outline" size="sm" className="h-16 flex flex-col">
+                      <Phone className="h-5 w-5 mb-1" />
+                      <span className="text-xs">Emergency</span>
+                    </Button>
+                    
+                    <Button variant="outline" size="sm" className="h-16 flex flex-col">
+                      <Navigation className="h-5 w-5 mb-1" />
+                      <span className="text-xs">Directions</span>
+                    </Button>
+                    
+                    <Button variant="outline" size="sm" className="h-16 flex flex-col">
+                      <Bell className="h-5 w-5 mb-1" />
+                      <span className="text-xs">Alerts</span>
+                    </Button>
+                    
+                    <Button variant="outline" size="sm" className="h-16 flex flex-col">
+                      <Headphones className="h-5 w-5 mb-1" />
+                      <span className="text-xs">Support</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Middle Column - AI Recommendations */}
+            <div className="lg:col-span-1 space-y-6">
+              {aiLoading ? (
+                <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                  <CardContent className="p-8 text-center">
+                    <div className="inline-flex items-center">
+                      <Brain className="h-6 w-6 text-purple-600 animate-pulse mr-2" />
+                      <span>AI is preparing your personalized travel guide...</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : aiRecommendations ? (
+                <div className="space-y-6">
+                  
+                  {/* Destination Information */}
+                  {aiRecommendations.destinationInfo && (
+                    <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                      <CardContent className="p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          🌍 Destination: {aiRecommendations.destinationInfo.city}
+                        </h3>
+                        
+                        <img 
+                          src={aiRecommendations.destinationInfo.image} 
+                          alt={aiRecommendations.destinationInfo.city}
+                          className="w-full h-40 object-cover rounded-lg mb-4"
+                        />
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="font-semibold text-gray-800 mb-2">🏛️ Must Visit</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {aiRecommendations.destinationInfo.highlights.map((highlight, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs">
+                                  {highlight}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-gray-800 mb-2">💡 Pro Tips</h4>
+                            <div className="space-y-2">
+                              {aiRecommendations.destinationInfo.tips.slice(0, 3).map((tip, idx) => (
+                                <div key={idx} className="flex items-start space-x-2">
+                                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                  <span className="text-sm text-gray-700">{tip}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Gate Navigation */}
+                  {aiRecommendations.gateInfo && (
+                    <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                      <CardContent className="p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <Navigation className="h-5 w-5" />
+                          Gate Navigation
+                        </h3>
+                        
+                        <div className="space-y-4">
+                          <div className="p-4 bg-blue-50 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="font-semibold text-gray-900">{aiRecommendations.gateInfo.terminal}</div>
+                              <Badge className="bg-blue-100 text-blue-800">Gate {aiRecommendations.gateInfo.gate}</Badge>
+                            </div>
+                            <div className="text-sm text-gray-600 flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {aiRecommendations.gateInfo.walkTime} walk from security
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-gray-800 mb-3">🚶 Walking Directions</h4>
+                            <div className="space-y-2">
+                              {aiRecommendations.gateInfo.directions.map((direction, idx) => (
+                                <div key={idx} className="flex items-start space-x-3">
+                                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-semibold text-blue-600 mt-0.5">
+                                    {idx + 1}
+                                  </div>
+                                  <span className="text-sm text-gray-700">{direction}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Weather & Packing */}
+                  <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-bold text-gray-900 mb-4">🌤️ Weather & Packing</h3>
+                      
+                      <div className="space-y-4">
+                        <div className="p-3 bg-blue-50 rounded-lg">
+                          <Badge className="bg-blue-100 text-blue-800 mb-2">
+                            {aiRecommendations.weatherInfo.temp}°C, {aiRecommendations.weatherInfo.condition}
+                          </Badge>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium text-gray-800 mb-2">Essential Items</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {aiRecommendations.packingList.clothing.slice(0, 4).map((item, idx) => (
+                              <div key={idx} className="flex items-center space-x-2 text-sm">
+                                <CheckCircle className="h-3 w-3 text-green-500" />
+                                <span className="text-gray-700">{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                </div>
+              ) : (
+                <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0">
+                  <CardContent className="p-6 text-center">
+                    <Button onClick={() => getAIRecommendations(selectedFlight)}>
+                      <Brain className="h-4 w-4 mr-2" />
+                      Get AI Recommendations
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Right Column - Chatbot */}
+            <div className="lg:col-span-1">
+              <Card className="bg-white/90 backdrop-blur-md shadow-xl border-0 h-[600px] flex flex-col">
+                <CardHeader className="flex-shrink-0">
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <MessageCircle className="h-5 w-5 text-purple-600" />
+                    Travel Assistant Chat
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">Ask me anything about your flight or destination!</p>
+                </CardHeader>
+                
+                <CardContent className="flex-1 flex flex-col p-0">
+                  {/* Chat Messages */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {chatMessages.map((msg) => (
+                      <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[80%] p-3 rounded-lg ${
+                          msg.type === 'user' 
+                            ? 'bg-purple-600 text-white' 
+                            : 'bg-gray-100 text-gray-900'
+                        }`}>
+                          <p className="text-sm">{msg.message}</p>
+                          <p className="text-xs opacity-70 mt-1">
+                            {msg.timestamp.toLocaleTimeString('en-US', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {chatLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Chat Input */}
+                  <div className="border-t p-4">
+                    <div className="flex space-x-2">
+                      <Input
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Type your question..."
+                        onKeyPress={(e) => e.key === 'Enter' && handleChatSubmit()}
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={handleChatSubmit}
+                        disabled={chatLoading || !chatInput.trim()}
+                        size="sm"
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* Quick Questions */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {['Gate info', 'Weather', 'Local food', 'Delays?'].map((question) => (
+                        <Button
+                          key={question}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                          onClick={() => {
+                            setChatInput(question)
+                            setTimeout(handleChatSubmit, 100)
+                          }}
+                        >
+                          {question}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes flyAcross {
+            0% { 
+              transform: translateX(-100px) translateY(-50%);
+              opacity: 0;
+            }
+            10% { 
+              opacity: 1;
+            }
+            90% { 
+              opacity: 1;
+            }
+            100% { 
+              transform: translateX(calc(100vw + 100px)) translateY(-50%);
+              opacity: 0;
+            }
+          }
+          
+          @keyframes fadeTrail {
+            0% { 
+              opacity: 0;
+              width: 0;
+            }
+            20% { 
+              opacity: 0.6;
+              width: 128px;
+            }
+            80% { 
+              opacity: 0.6;
+              width: 128px;
+            }
+            100% { 
+              opacity: 0;
+              width: 0;
+            }
+          }
+        `}</style>
+      </div>
+    )
   }
 
   // HOME PAGE
@@ -1265,225 +1834,6 @@ export default function App() {
                 ))}
               </div>
             </div>
-          )}
-
-          {/* Enhanced AI Recommendations Panel with destination images and gate info */}
-          {selectedFlight && (
-            <Card className="mt-8 border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 animate-in slide-in-from-bottom-5 duration-500">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-800">
-                  <Sparkles className="h-6 w-6 animate-spin" />
-                  AI Travel Assistant for {selectedFlight.fromCity} → {selectedFlight.toCity}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {aiLoading ? (
-                  <div className="text-center py-8">
-                    <div className="inline-flex items-center">
-                      <Brain className="h-6 w-6 text-purple-600 animate-pulse mr-2" />
-                      <span>AI is analyzing your trip and generating personalized recommendations...</span>
-                    </div>
-                  </div>
-                ) : aiRecommendations ? (
-                  <div className="space-y-6">
-                    {/* Destination Information with Image */}
-                    {aiRecommendations.destinationInfo && (
-                      <Card className="bg-white shadow-sm">
-                        <CardContent className="p-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            🌍 Welcome to {aiRecommendations.destinationInfo.city}!
-                          </h3>
-                          
-                          <div className="grid md:grid-cols-2 gap-6">
-                            <div>
-                              <img 
-                                src={aiRecommendations.destinationInfo.image} 
-                                alt={aiRecommendations.destinationInfo.city}
-                                className="w-full h-48 object-cover rounded-lg mb-4"
-                              />
-                              <div className="space-y-2">
-                                <h4 className="font-semibold text-gray-800">🏛️ Top Attractions</h4>
-                                <div className="flex flex-wrap gap-2">
-                                  {aiRecommendations.destinationInfo.highlights.map((highlight, idx) => (
-                                    <Badge key={idx} variant="outline" className="text-xs">
-                                      {highlight}
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <h4 className="font-semibold text-gray-800 mb-3">💡 Local Tips</h4>
-                              <div className="space-y-2">
-                                {aiRecommendations.destinationInfo.tips.map((tip, idx) => (
-                                  <div key={idx} className="flex items-start space-x-2">
-                                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                                    <span className="text-sm text-gray-700">{tip}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* Airport Gate Navigation */}
-                    {aiRecommendations.gateInfo && (
-                      <Card className="bg-white shadow-sm">
-                        <CardContent className="p-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <Navigation className="h-5 w-5" />
-                            🛫 Gate Navigation - {aiRecommendations.gateInfo.name}
-                          </h3>
-                          
-                          <div className="grid md:grid-cols-2 gap-6">
-                            <div>
-                              <img 
-                                src={aiRecommendations.gateInfo.mapImage} 
-                                alt="Airport Map"
-                                className="w-full h-32 object-cover rounded-lg mb-4"
-                              />
-                              <div className="space-y-2">
-                                <div className="flex items-center space-x-2">
-                                  <Map className="h-4 w-4 text-blue-600" />
-                                  <span className="font-semibold">{aiRecommendations.gateInfo.terminal}</span>
-                                  <span className="text-gray-600">Gate {aiRecommendations.gateInfo.gate}</span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <Clock className="h-4 w-4 text-orange-600" />
-                                  <span className="text-sm text-gray-700">{aiRecommendations.gateInfo.walkTime} walk</span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                                <Route className="h-4 w-4" />
-                                🚶 Walking Directions
-                              </h4>
-                              <div className="space-y-2">
-                                {aiRecommendations.gateInfo.directions.map((direction, idx) => (
-                                  <div key={idx} className="flex items-start space-x-2">
-                                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-semibold text-blue-600">
-                                      {idx + 1}
-                                    </div>
-                                    <span className="text-sm text-gray-700">{direction}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {/* Traditional AI Recommendations */}
-                    <div className="grid md:grid-cols-2 gap-6 animate-in fade-in duration-1000">
-                      <div className="space-y-4">
-                        <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
-                          <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            🌤️ Weather & Packing Guide
-                          </h4>
-                          <div className="mb-4">
-                            <Badge className="bg-blue-100 text-blue-800 animate-pulse">
-                              {aiRecommendations.weatherInfo.temp}°C, {aiRecommendations.weatherInfo.condition}
-                            </Badge>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <div>
-                              <h5 className="text-sm font-medium text-gray-700 mb-2">👔 Essential Clothing</h5>
-                              <ul className="text-sm text-gray-600 space-y-1">
-                                {aiRecommendations.packingList.clothing.slice(0, 4).map((item, idx) => (
-                                  <li key={idx} className="flex items-center space-x-2 animate-in slide-in-from-left-3 duration-300" style={{animationDelay: `${idx * 100}ms`}}>
-                                    <CheckCircle className="h-3 w-3 text-green-500" />
-                                    <span>{item}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            
-                            <div>
-                              <h5 className="text-sm font-medium text-gray-700 mb-2">☔ Weather Essentials</h5>
-                              <ul className="text-sm text-gray-600 space-y-1">
-                                {aiRecommendations.packingList.weather.slice(0, 3).map((item, idx) => (
-                                  <li key={idx} className="flex items-center space-x-2 animate-in slide-in-from-left-3 duration-300" style={{animationDelay: `${idx * 150}ms`}}>
-                                    <CheckCircle className="h-3 w-3 text-blue-500" />
-                                    <span>{item}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
-                          <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            ⏰ Smart Timeline
-                          </h4>
-                          <div className="text-2xl font-bold text-orange-600 mb-2 animate-pulse">
-                            Leave by: {aiRecommendations.timeManagement.leaveBy}
-                          </div>
-                          <div className="text-sm text-gray-600 mb-4">
-                            Total prep time: {aiRecommendations.timeManagement.totalMinutes} minutes
-                          </div>
-                          
-                          <div className="space-y-2">
-                            {aiRecommendations.timeManagement.timeline?.slice(0, 4).map((item, idx) => (
-                              <div key={idx} className="flex justify-between text-sm animate-in slide-in-from-right-3 duration-300" style={{animationDelay: `${idx * 100}ms`}}>
-                                <span className="text-gray-600">{item.task}</span>
-                                <span className="font-medium text-orange-600">{item.time}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
-                        <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                          💡 Local Travel Tips
-                        </h4>
-                        <div className="space-y-4">
-                          {aiRecommendations.travelTips.slice(0, 4).map((tip, idx) => (
-                            <div key={idx} className="border-l-4 border-purple-400 pl-4 py-2 animate-in slide-in-from-bottom-3 duration-300" style={{animationDelay: `${idx * 150}ms`}}>
-                              <h5 className="text-sm font-medium text-purple-800">{tip.category}</h5>
-                              <p className="text-sm text-gray-600 mt-1">{tip.tip}</p>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg animate-in fade-in duration-1000">
-                          <h5 className="font-medium text-gray-800 mb-2">✨ Pro Tip</h5>
-                          <p className="text-sm text-gray-600">
-                            Download offline maps and key phrases in the local language. 
-                            Consider getting travel insurance for international trips.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <Button onClick={() => getAIRecommendations(selectedFlight)} className="transform hover:scale-105 transition-transform duration-200">
-                      Get AI Recommendations
-                    </Button>
-                  </div>
-                )}
-
-                <div className="mt-6 text-center">
-                  <Button 
-                    onClick={() => setSelectedFlight(null)}
-                    variant="ghost"
-                    size="sm"
-                    className="transform hover:scale-105 transition-transform duration-200"
-                  >
-                    Close AI Assistant
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           )}
         </div>
       </div>
