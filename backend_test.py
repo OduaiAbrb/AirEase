@@ -557,15 +557,17 @@ class AireaseProductionTester:
 
     def run_all_tests(self):
         """Run all production tests"""
-        print("🚀 Starting Airease Production Testing Suite")
+        print("🚀 Starting Airease Comprehensive Backend Testing Suite")
         print("=" * 60)
         print(f"Testing against: {BASE_URL}")
+        print("Focus: CRITICAL FIX VERIFICATION + NEW MISSED FLIGHT RECOVERY")
         print("=" * 60)
         print()
         
         # Run all tests
         self.test_api_health_check()
         self.test_flight_search_enhanced()
+        self.test_missed_flight_recovery()  # NEW FEATURE TEST
         self.test_ai_recommendations()
         self.test_enhanced_email_notifications()
         self.test_ai_enhanced_price_monitoring()
@@ -574,7 +576,7 @@ class AireaseProductionTester:
         
         # Summary
         print("=" * 60)
-        print("🎯 PRODUCTION TEST SUMMARY")
+        print("🎯 COMPREHENSIVE TEST SUMMARY")
         print("=" * 60)
         
         passed = sum(1 for result in self.test_results if result['success'])
@@ -584,14 +586,32 @@ class AireaseProductionTester:
         print(f"Success Rate: {(passed/total)*100:.1f}%")
         print()
         
+        # Critical tests identification
+        critical_tests = [
+            "Enhanced Flight Search",  # CRITICAL FIX VERIFICATION
+            "Missed Flight Recovery",  # NEW FEATURE
+            "AI Recommendations",
+            "API Health Check"
+        ]
+        
+        critical_passed = 0
+        for result in self.test_results:
+            if result['test'] in critical_tests and result['success']:
+                critical_passed += 1
+        
+        print(f"Critical Tests: {critical_passed}/{len(critical_tests)} passed")
+        
         if passed == total:
-            print("🎉 ALL TESTS PASSED - PRODUCTION READY!")
+            print("🎉 ALL TESTS PASSED - BACKEND FULLY FUNCTIONAL!")
+        elif critical_passed == len(critical_tests):
+            print("✅ ALL CRITICAL FEATURES WORKING - Minor issues only")
         else:
-            print("⚠️  SOME TESTS FAILED - REVIEW REQUIRED")
+            print("⚠️  CRITICAL ISSUES FOUND - IMMEDIATE ATTENTION REQUIRED")
             print("\nFailed Tests:")
             for result in self.test_results:
                 if not result['success']:
-                    print(f"  ❌ {result['test']}: {result['details']}")
+                    priority = "🚨 CRITICAL" if result['test'] in critical_tests else "⚠️  Minor"
+                    print(f"  {priority}: {result['test']} - {result['details']}")
         
         print()
         return passed == total
