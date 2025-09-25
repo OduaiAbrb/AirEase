@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { MongoClient } from 'mongodb'
 import { v4 as uuidv4 } from 'uuid'
+import { checkPriceMatches, triggerPriceCheck } from '../../../lib/priceMonitor.js'
+import { sendPriceAlert } from '../../../lib/emailService.js'
 
 // MongoDB Connection
 let client
@@ -45,9 +47,10 @@ function generateMockFlights(searchParams) {
 // Real flight search using provided API key
 async function searchFlights(searchParams) {
   try {
+    console.log('Using flight API key:', process.env.FLIGHT_API_KEY)
+    
     // For now, using mock data as flight API integration needs specific endpoint
     // Will implement real API call once we get the exact API endpoint details
-    console.log('Using flight API key:', process.env.FLIGHT_API_KEY)
     
     // This would be the real API call structure:
     // const response = await fetch(`https://flight-api-endpoint.com/search`, {
@@ -67,75 +70,60 @@ async function searchFlights(searchParams) {
   }
 }
 
-// Price monitoring function
-async function checkPriceMatches() {
-  const db = await connectDB()
-  const watchCollection = db.collection('watchlists')
-  
-  try {
-    const watches = await watchCollection.find({ active: true }).toArray()
-    
-    for (const watch of watches) {
-      // Get current flight prices
-      const currentFlights = await searchFlights({
-        from: watch.from,
-        to: watch.to,
-        departDate: watch.departDate
-      })
-      
-      // Find flights under target price
-      const matchedFlights = currentFlights.filter(flight => 
-        flight.price <= watch.targetPrice
-      )
-      
-      if (matchedFlights.length > 0) {
-        // Trigger notification
-        await sendPriceAlert(watch, matchedFlights[0])
-        
-        // Update watch status
-        await watchCollection.updateOne(
-          { _id: watch._id },
-          { 
-            $set: { 
-              lastMatch: new Date(),
-              matchedPrice: matchedFlights[0].price 
-            } 
-          }
-        )
-      }
-    }
-  } catch (error) {
-    console.error('Price checking error:', error)
-  }
-}
-
-// Email notification (placeholder for Email.js integration)
-async function sendPriceAlert(watch, flight) {
-  console.log(`🎯 PRICE ALERT: Flight ${flight.flightNumber} from ${flight.from} to ${flight.to} now costs $${flight.price} (target: $${watch.targetPrice})`)
-  
-  // Email.js integration will be implemented in Phase 4
-  // This would send actual email notifications
-  return { sent: true }
-}
-
 // API Router
 export async function GET(request) {
   const { pathname } = new URL(request.url)
   
   try {
     if (pathname === '/api/' || pathname === '/api') {
-      return NextResponse.json({ message: 'Airease API is running!' })
+      return NextResponse.json({ 
+        message: 'Airease API is running!',
+        features: ['Flight Search', 'Price Monitoring', 'Email Alerts', 'Watchlists'],
+        version: '2.0'
+      })
     }
     
     if (pathname === '/api/flights/check-prices') {
-      await checkPriceMatches()
-      return NextResponse.json({ message: 'Price check completed' })
+      const db = await connectDB()
+      const result = await triggerPriceCheck(db)
+      return NextResponse.json({ 
+        message: 'Price check completed',
+        result 
+      })
     }
     
     if (pathname === '/api/watchlist') {
       const db = await connectDB()
       const watchlists = await db.collection('watchlists').find({}).toArray()
       return NextResponse.json({ watchlists })
+    }
+    
+    if (pathname === '/api/notifications/test') {
+      // Test email notification
+      const mockWatch = {
+        id: 'test_watch',
+        from: 'AMM',
+        to: 'LHR',
+        targetPrice: 500,
+        email: 'user@example.com'
+      }
+      
+      const mockFlight = {
+        id: 'test_flight',
+        from: 'AMM',
+        to: 'LHR',
+        airline: 'Qatar Airways',
+        flightNumber: 'QR123',
+        departureTime: '08:30',
+        duration: '6h 15m',
+        price: 450
+      }
+      
+      const result = await sendPriceAlert(mockWatch, mockFlight)
+      return NextResponse.json({ 
+        message: 'Test email sent',
+        result 
+      })
     }
     
     return NextResponse.json({ error: 'Endpoint not found' }, { status: 404 })
@@ -168,7 +156,9 @@ export async function POST(request) {
         ...watchData,
         active: true,
         createdAt: new Date(),
-        lastCheck: new Date()
+        lastCheck: new Date(),
+        notificationCount: 0,
+        email: watchData.email || 'user@example.com' // Default email for demo
       }
       
       await db.collection('watchlists').insertOne(newWatch)
@@ -176,7 +166,27 @@ export async function POST(request) {
       return NextResponse.json({ 
         success: true, 
         watch: newWatch,
-        message: 'Flight watch created successfully'
+        message: 'Flight watch created successfully! You\'ll receive email alerts when the price hits your target.'
+      })
+    }
+    
+    if (pathname === '/api/notifications/send') {
+      const { watchId, flightData } = await request.json()
+      const db = await connectDB()
+      
+      // Get watch details
+      const watch = await db.collection('watchlists').findOne({ id: watchId })
+      if (!watch) {
+        return NextResponse.json({ error: 'Watch not found' }, { status: 404 })
+      }
+      
+      // Send notification
+      const result = await sendPriceAlert(watch, flightData)
+      
+      return NextResponse.json({ 
+        success: result.success,
+        message: result.message,
+        emailContent: result.content
       })
     }
     
@@ -188,9 +198,50 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  return NextResponse.json({ message: 'PUT method handler' })
+  const { pathname } = new URL(request.url)
+  
+  try {
+    if (pathname === '/api/watchlist/toggle') {
+      const { watchId, active } = await request.json()
+      const db = await connectDB()
+      
+      await db.collection('watchlists').updateOne(
+        { id: watchId },
+        { $set: { active, updatedAt: new Date() } }
+      )
+      
+      return NextResponse.json({ 
+        success: true,
+        message: `Watch ${active ? 'activated' : 'paused'}` 
+      })
+    }
+    
+    return NextResponse.json({ error: 'Endpoint not found' }, { status: 404 })
+  } catch (error) {
+    console.error('API Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
 
 export async function DELETE(request) {
-  return NextResponse.json({ message: 'DELETE method handler' })
+  const { pathname } = new URL(request.url)
+  
+  try {
+    if (pathname.startsWith('/api/watchlist/')) {
+      const watchId = pathname.split('/').pop()
+      const db = await connectDB()
+      
+      await db.collection('watchlists').deleteOne({ id: watchId })
+      
+      return NextResponse.json({ 
+        success: true,
+        message: 'Watch deleted successfully' 
+      })
+    }
+    
+    return NextResponse.json({ error: 'Endpoint not found' }, { status: 404 })
+  } catch (error) {
+    console.error('API Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
