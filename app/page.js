@@ -16,12 +16,30 @@ export default function App() {
     departDate: '',
     returnDate: '',
     passengers: 1,
-    maxPrice: ''
+    maxPrice: '',
+    email: 'user@example.com'
   })
   
   const [searchResults, setSearchResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [watchlists, setWatchlists] = useState([])
+  const [notifications, setNotifications] = useState([])
+  const [showEmailDemo, setShowEmailDemo] = useState(false)
+
+  // Load watchlists on component mount
+  useEffect(() => {
+    loadWatchlists()
+  }, [])
+
+  const loadWatchlists = async () => {
+    try {
+      const response = await fetch('/api/watchlist')
+      const data = await response.json()
+      setWatchlists(data.watchlists || [])
+    } catch (error) {
+      console.error('Failed to load watchlists:', error)
+    }
+  }
 
   const handleSearch = async () => {
     setLoading(true)
@@ -47,15 +65,95 @@ export default function App() {
         body: JSON.stringify({
           ...searchParams,
           targetPrice: flight.price,
-          flightId: flight.id
+          flightId: flight.id,
+          email: searchParams.email
         })
       })
       const data = await response.json()
       if (data.success) {
         setWatchlists([...watchlists, data.watch])
+        
+        // Show success notification
+        setNotifications([...notifications, {
+          id: Date.now(),
+          type: 'success',
+          message: `Price watch created! You'll get email alerts when ${flight.from}→${flight.to} drops to $${flight.price} or lower.`
+        }])
+        
+        // Auto-remove notification after 5 seconds
+        setTimeout(() => {
+          setNotifications(prev => prev.filter(n => n.id !== Date.now()))
+        }, 5000)
       }
     } catch (error) {
       console.error('Failed to add to watchlist:', error)
+    }
+  }
+
+  const toggleWatch = async (watchId, currentStatus) => {
+    try {
+      const response = await fetch('/api/watchlist/toggle', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watchId, active: !currentStatus })
+      })
+      
+      if (response.ok) {
+        await loadWatchlists()
+      }
+    } catch (error) {
+      console.error('Failed to toggle watch:', error)
+    }
+  }
+
+  const deleteWatch = async (watchId) => {
+    try {
+      const response = await fetch(`/api/watchlist/${watchId}`, {
+        method: 'DELETE'
+      })
+      
+      if (response.ok) {
+        await loadWatchlists()
+      }
+    } catch (error) {
+      console.error('Failed to delete watch:', error)
+    }
+  }
+
+  const testEmailNotification = async () => {
+    try {
+      setShowEmailDemo(true)
+      
+      const response = await fetch('/api/notifications/test', {
+        method: 'GET'
+      })
+      const data = await response.json()
+      
+      setNotifications([...notifications, {
+        id: Date.now(),
+        type: 'info',
+        message: '📧 Test email notification sent! Check the console to see the email content that would be sent.',
+        email: data.result
+      }])
+      
+    } catch (error) {
+      console.error('Test notification failed:', error)
+    }
+  }
+
+  const triggerPriceCheck = async () => {
+    try {
+      const response = await fetch('/api/flights/check-prices')
+      const data = await response.json()
+      
+      setNotifications([...notifications, {
+        id: Date.now(),
+        type: 'info',
+        message: `🤖 Price check completed! Checked ${data.result?.watchesChecked || 0} watches, sent ${data.result?.notificationsSent || 0} notifications.`
+      }])
+      
+    } catch (error) {
+      console.error('Price check failed:', error)
     }
   }
 
