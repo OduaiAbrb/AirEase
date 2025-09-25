@@ -146,6 +146,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PHASE 2 TESTED: Flight search continues to work perfectly with enhanced mock data generation. All 6 flights returned with proper structure and price sorting."
+        - working: true
+          agent: "testing"
+          comment: "✅ CLEANED UP VERSION TESTED: Flight search working perfectly with simplified mock data generation. Returns 6 flights sorted by price with all required fields (id, from, to, airline, flightNumber, departureTime, arrivalTime, duration, price, stops, baggage). Sample flight: Emirates EM735 - $229. Clean response structure confirmed."
 
   - task: "Watchlist Creation API"
     implemented: true
