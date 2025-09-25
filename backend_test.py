@@ -217,46 +217,70 @@ def run_all_tests():
     """Run all backend API tests"""
     print("🚀 Starting Airease Backend API Tests")
     print("=" * 50)
-    print(f"Testing against: {API_BASE}")
-    print(f"Timestamp: {datetime.now().isoformat()}")
+    
+    # Test both local and external endpoints
+    endpoints_to_test = [
+        ("Local", "http://localhost:3000/api"),
+        ("External", "https://airease.preview.emergentagent.com/api")
+    ]
+    
+    all_results = {}
+    
+    for endpoint_name, base_url in endpoints_to_test:
+        print(f"\n🔍 Testing {endpoint_name} Endpoint: {base_url}")
+        print(f"Timestamp: {datetime.now().isoformat()}")
+        print("-" * 50)
+        
+        # Update global API_BASE for this test run
+        global API_BASE
+        API_BASE = base_url
+        
+        results = {}
+        
+        # Test 1: Health Check
+        results["health_check"] = test_health_check()
+        
+        # Test 2: Flight Search
+        results["flight_search"] = test_flight_search()
+        
+        # Test 3: Watchlist Creation
+        watchlist_created, watch_id = test_watchlist_creation()
+        results["watchlist_creation"] = watchlist_created
+        
+        # Test 4: Watchlist Retrieval
+        results["watchlist_retrieval"] = test_watchlist_retrieval()
+        
+        all_results[endpoint_name] = results
+        
+        # Summary for this endpoint
+        passed = sum(1 for result in results.values() if result)
+        total = len(results)
+        print(f"\n{endpoint_name} Results: {passed}/{total} tests passed")
+    
+    # Overall Summary
+    print("\n" + "=" * 50)
+    print("📊 OVERALL TEST SUMMARY")
     print("=" * 50)
-    print()
     
-    results = {}
+    for endpoint_name, results in all_results.items():
+        print(f"\n{endpoint_name} Endpoint:")
+        for test_name, result in results.items():
+            status = "✅ PASS" if result else "❌ FAIL"
+            print(f"  {status} {test_name.replace('_', ' ').title()}")
     
-    # Test 1: Health Check
-    results["health_check"] = test_health_check()
+    # Determine overall success
+    local_results = all_results.get("Local", {})
+    local_passed = sum(1 for result in local_results.values() if result)
+    local_total = len(local_results)
     
-    # Test 2: Flight Search
-    results["flight_search"] = test_flight_search()
+    print(f"\n🎯 Critical Assessment:")
+    print(f"Local API: {local_passed}/{local_total} tests passed")
     
-    # Test 3: Watchlist Creation
-    watchlist_created, watch_id = test_watchlist_creation()
-    results["watchlist_creation"] = watchlist_created
-    
-    # Test 4: Watchlist Retrieval
-    results["watchlist_retrieval"] = test_watchlist_retrieval()
-    
-    # Summary
-    print("=" * 50)
-    print("📊 TEST SUMMARY")
-    print("=" * 50)
-    
-    passed = sum(1 for result in results.values() if result)
-    total = len(results)
-    
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{status} {test_name.replace('_', ' ').title()}")
-    
-    print()
-    print(f"Overall Result: {passed}/{total} tests passed")
-    
-    if passed == total:
-        print("🎉 All backend API tests PASSED!")
+    if local_passed == local_total:
+        print("✅ Backend API is fully functional locally")
         return True
     else:
-        print("⚠️  Some backend API tests FAILED!")
+        print("❌ Backend API has issues")
         return False
 
 if __name__ == "__main__":
