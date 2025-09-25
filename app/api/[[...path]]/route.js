@@ -3,6 +3,7 @@ import { MongoClient } from 'mongodb'
 import { v4 as uuidv4 } from 'uuid'
 import { checkPriceMatches, triggerPriceCheck } from '../../../lib/priceMonitor.js'
 import { sendPriceAlert } from '../../../lib/emailService.js'
+import { generatePackingRecommendations, generateTravelTips, calculateTimeBudget } from '../../../lib/aiRecommendations.js'
 
 // MongoDB Connection
 let client
