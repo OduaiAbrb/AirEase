@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plane, Search, MapPin, Calendar, DollarSign, Heart, Clock, ArrowRight, Mail, Brain, CheckCircle, AlertCircle, Sparkles, Zap, Target, Settings, Filter, Camera, CreditCard, Star, Wifi, Coffee, Monitor, Shield, TrendingDown, TrendingUp, AlertTriangle, Phone, LifeBuoy, Navigation, Map, Compass, Route, MessageCircle, Send, User, Bookmark, Bell, Globe, Headphones, HelpCircle } from "lucide-react"
+import { Plane, Search, MapPin, Calendar, DollarSign, Heart, Clock, ArrowRight, Mail, Brain, CheckCircle, AlertCircle, Sparkles, Zap, Target, Settings, Filter, Camera, CreditCard, Star, Wifi, Coffee, Monitor, Shield, TrendingDown, TrendingUp, AlertTriangle, Phone, LifeBuoy, Navigation, Map, Compass, Route, MessageCircle, Send, User, Bookmark, Bell, Globe, Headphones, HelpCircle, LogIn, UserPlus, LogOut } from "lucide-react"
 import Link from 'next/link'
 import { generateRealisticFlights } from '../lib/realisticFlightData.js'
 
