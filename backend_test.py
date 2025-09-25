@@ -385,132 +385,65 @@ def test_watchlist_toggle(watch_id=None):
         return False
 
 def run_all_tests():
-    """Run all backend API tests including Phase 2 enhancements"""
-    print("🚀 Starting Airease Backend API Tests - Phase 2 Enhanced")
+    """Run all backend API tests for cleaned up version"""
+    print("🚀 Starting Airease Backend API Tests - Cleaned Up Version")
     print("=" * 60)
     
-    # Test both local and external endpoints
-    endpoints_to_test = [
-        ("Local", "http://localhost:3000/api"),
-        ("External", "https://airease.preview.emergentagent.com/api")
-    ]
+    print(f"\n🔍 Testing Endpoint: {API_BASE}")
+    print(f"Timestamp: {datetime.now().isoformat()}")
+    print("-" * 60)
     
-    all_results = {}
+    results = {}
+    watch_id = None
+    watchlists = []
     
-    for endpoint_name, base_url in endpoints_to_test:
-        print(f"\n🔍 Testing {endpoint_name} Endpoint: {base_url}")
-        print(f"Timestamp: {datetime.now().isoformat()}")
-        print("-" * 60)
-        
-        # Update global API_BASE for this test run
-        global API_BASE
-        API_BASE = base_url
-        
-        results = {}
-        watch_id = None
-        watchlists = []
-        
-        # Phase 1 Tests
-        print("\n📋 PHASE 1 TESTS (Core Functionality)")
-        print("-" * 40)
-        
-        # Test 1: Health Check
-        results["health_check"] = test_health_check()
-        
-        # Test 2: Flight Search
-        results["flight_search"] = test_flight_search()
-        
-        # Test 3: Watchlist Creation
-        watchlist_created, watch_id = test_watchlist_creation()
-        results["watchlist_creation"] = watchlist_created
-        
-        # Test 4: Watchlist Retrieval
-        watchlist_retrieved, watchlists = test_watchlist_retrieval()
-        results["watchlist_retrieval"] = watchlist_retrieved
-        
-        # Phase 2 Tests
-        print("\n📋 PHASE 2 TESTS (Enhanced Features)")
-        print("-" * 40)
-        
-        # Test 5: Email Notification System
-        results["email_notification"] = test_email_notification_system()
-        
-        # Test 6: Price Monitoring
-        results["price_monitoring"] = test_price_monitoring()
-        
-        # Test 7: Send Notification (use real watch_id if available)
-        test_watch_id = watch_id if watch_id else (watchlists[0]["id"] if watchlists else None)
-        results["send_notification"] = test_send_notification(test_watch_id)
-        
-        # Test 8: Watchlist Toggle (use real watch_id if available)
-        results["watchlist_toggle"] = test_watchlist_toggle(test_watch_id)
-        
-        all_results[endpoint_name] = results
-        
-        # Summary for this endpoint
-        passed = sum(1 for result in results.values() if result)
-        total = len(results)
-        print(f"\n{endpoint_name} Results: {passed}/{total} tests passed")
-        
-        # Phase breakdown
-        phase1_tests = ["health_check", "flight_search", "watchlist_creation", "watchlist_retrieval"]
-        phase2_tests = ["email_notification", "price_monitoring", "send_notification", "watchlist_toggle"]
-        
-        phase1_passed = sum(1 for test in phase1_tests if results.get(test, False))
-        phase2_passed = sum(1 for test in phase2_tests if results.get(test, False))
-        
-        print(f"  Phase 1 (Core): {phase1_passed}/{len(phase1_tests)} passed")
-        print(f"  Phase 2 (Enhanced): {phase2_passed}/{len(phase2_tests)} passed")
+    # Core Tests
+    print("\n📋 CORE API TESTS (Cleaned Up Version)")
+    print("-" * 40)
+    
+    # Test 1: Health Check
+    results["health_check"] = test_health_check()
+    
+    # Test 2: Flight Search
+    results["flight_search"] = test_flight_search()
+    
+    # Test 3: Watchlist Creation
+    watchlist_created, watch_id = test_watchlist_creation()
+    results["watchlist_creation"] = watchlist_created
+    
+    # Test 4: Watchlist Retrieval
+    watchlist_retrieved, watchlists = test_watchlist_retrieval()
+    results["watchlist_retrieval"] = watchlist_retrieved
+    
+    # Test 5: Email Notification System
+    results["email_notification"] = test_email_notification_system()
+    
+    # Test 6: Price Monitoring
+    results["price_monitoring"] = test_price_monitoring()
+    
+    # Summary
+    passed = sum(1 for result in results.values() if result)
+    total = len(results)
+    print(f"\nResults: {passed}/{total} tests passed")
     
     # Overall Summary
     print("\n" + "=" * 60)
-    print("📊 OVERALL TEST SUMMARY - PHASE 2 ENHANCED")
+    print("📊 TEST SUMMARY - CLEANED UP VERSION")
     print("=" * 60)
     
-    for endpoint_name, results in all_results.items():
-        print(f"\n{endpoint_name} Endpoint:")
-        
-        # Phase 1 results
-        print("  Phase 1 (Core Features):")
-        phase1_tests = ["health_check", "flight_search", "watchlist_creation", "watchlist_retrieval"]
-        for test_name in phase1_tests:
-            result = results.get(test_name, False)
-            status = "✅ PASS" if result else "❌ FAIL"
-            print(f"    {status} {test_name.replace('_', ' ').title()}")
-        
-        # Phase 2 results
-        print("  Phase 2 (Enhanced Features):")
-        phase2_tests = ["email_notification", "price_monitoring", "send_notification", "watchlist_toggle"]
-        for test_name in phase2_tests:
-            result = results.get(test_name, False)
-            status = "✅ PASS" if result else "❌ FAIL"
-            print(f"    {status} {test_name.replace('_', ' ').title()}")
+    print("\nCore API Endpoints:")
+    for test_name, result in results.items():
+        status = "✅ PASS" if result else "❌ FAIL"
+        print(f"  {status} {test_name.replace('_', ' ').title()}")
     
-    # Determine overall success
-    local_results = all_results.get("Local", {})
-    local_passed = sum(1 for result in local_results.values() if result)
-    local_total = len(local_results)
+    print(f"\n🎯 Assessment:")
+    print(f"Total: {passed}/{total} tests passed")
     
-    # Phase-specific analysis
-    phase1_tests = ["health_check", "flight_search", "watchlist_creation", "watchlist_retrieval"]
-    phase2_tests = ["email_notification", "price_monitoring", "send_notification", "watchlist_toggle"]
-    
-    local_phase1_passed = sum(1 for test in phase1_tests if local_results.get(test, False))
-    local_phase2_passed = sum(1 for test in phase2_tests if local_results.get(test, False))
-    
-    print(f"\n🎯 Critical Assessment:")
-    print(f"Local API Total: {local_passed}/{local_total} tests passed")
-    print(f"Phase 1 (Core): {local_phase1_passed}/{len(phase1_tests)} passed")
-    print(f"Phase 2 (Enhanced): {local_phase2_passed}/{len(phase2_tests)} passed")
-    
-    if local_passed == local_total:
-        print("✅ Backend API is fully functional locally - All Phase 2 enhancements working!")
+    if passed == total:
+        print("✅ Backend API is fully functional - All cleaned up endpoints working!")
         return True
-    elif local_phase1_passed == len(phase1_tests):
-        print("⚠️ Phase 1 core functionality working, but Phase 2 enhancements have issues")
-        return False
     else:
-        print("❌ Backend API has critical issues")
+        print(f"❌ Backend API has issues - {total - passed} test(s) failed")
         return False
 
 if __name__ == "__main__":
