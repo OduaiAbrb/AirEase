@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plane, Search, MapPin, Calendar, DollarSign, Clock, Bell, Heart, Star, Mail, CheckCircle, PlayCircle, PauseCircle, Trash2 } from "lucide-react"
+import AIRecommendationsCard from "@/components/ui/ai-recommendations"
+import { Plane, Search, MapPin, Calendar, DollarSign, Clock, Bell, Heart, Star, Mail, CheckCircle, PlayCircle, PauseCircle, Trash2, Brain, Sparkles, Bot } from "lucide-react"
 
 export default function App() {
   const [searchParams, setSearchParams] = useState({
