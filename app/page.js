@@ -387,6 +387,29 @@ export default function App() {
           </div>
         )}
 
+        {/* AI Travel Recommendations */}
+        {selectedFlight && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold flex items-center gap-2">
+                <Bot className="h-6 w-6 text-purple-600" />
+                AI Travel Assistant for {selectedFlight.from} → {selectedFlight.to}
+              </h3>
+              <Button
+                onClick={() => setSelectedFlight(null)}
+                variant="outline"
+                size="sm"
+              >
+                Close
+              </Button>
+            </div>
+            <AIRecommendationsCard
+              flightData={selectedFlight}
+              onRecommendationsGenerated={setAIRecommendations}
+            />
+          </div>
+        )}
+
         {/* Active Watchlists */}
         {watchlists.length > 0 && (
           <div className="mb-8">
