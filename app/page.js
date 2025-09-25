@@ -313,6 +313,18 @@ export default function App() {
                   <Zap className="h-4 w-4 mr-1" />
                   AI Price Check
                 </Button>
+                <Link href="/boarding-pass">
+                  <Button variant="ghost" size="sm">
+                    <Camera className="h-4 w-4 mr-1" />
+                    Scan Boarding Pass
+                  </Button>
+                </Link>
+                <Link href="/auto-purchase">
+                  <Button variant="ghost" size="sm">
+                    <CreditCard className="h-4 w-4 mr-1" />
+                    Auto-Purchase
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
