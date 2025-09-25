@@ -221,6 +221,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PHASE 2 TESTED: GET /api/flights/check-prices endpoint working perfectly. Price monitoring checked 3 active watches, simulated realistic price fluctuations, and properly updated lastCheck timestamps. System correctly identifies price matches and would trigger notifications."
+        - working: true
+          agent: "testing"
+          comment: "✅ CLEANED UP VERSION TESTED: Price monitoring system working perfectly with simplified mock implementation. GET /api/flights/check-prices returns proper response structure (success: true, watchesChecked: 3, notificationsSent: 1, timestamp). Console shows clean price check process with 1-second simulation delay. Simplified but functional price monitoring confirmed."
 
   - task: "Send Notification API"
     implemented: true
