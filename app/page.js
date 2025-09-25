@@ -34,7 +34,10 @@ export default function App() {
   }
 
   const handleSearch = async () => {
+    console.log('🔍 Search button clicked!', searchParams)
+    
     if (!searchParams.from || !searchParams.to || !searchParams.departDate) {
+      console.warn('Missing required fields:', { from: searchParams.from, to: searchParams.to, date: searchParams.departDate })
       addNotification('Please fill in origin, destination, and departure date', 'error')
       return
     }
@@ -43,33 +46,43 @@ export default function App() {
     setSearchResults([])
     
     try {
-      console.log('🔍 Searching flights...', searchParams)
+      console.log('🔍 Making API call to /api/flights/search...')
       
       const response = await fetch('/api/flights/search', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(searchParams)
       })
       
+      console.log('📡 API response status:', response.status, response.statusText)
+      
       if (!response.ok) {
-        throw new Error(`Search failed: ${response.status}`)
+        const errorText = await response.text()
+        console.error('API error response:', errorText)
+        throw new Error(`API error ${response.status}: ${errorText}`)
       }
       
       const data = await response.json()
-      console.log('✅ Search response:', data)
+      console.log('✅ Flight search successful:', data)
       
-      if (data.success && data.flights) {
+      if (data.success && data.flights && data.flights.length > 0) {
         setSearchResults(data.flights)
         addNotification(`Found ${data.flights.length} flights from ${searchParams.from} to ${searchParams.to}`)
+        console.log('✈️ Flights loaded:', data.flights.length)
       } else {
-        throw new Error('No flights found')
+        console.warn('No flights in response:', data)
+        addNotification('No flights found. Try different dates or destinations.', 'error')
       }
     } catch (error) {
-      console.error('Search failed:', error)
-      addNotification('Search failed. Please try again.', 'error')
+      console.error('❌ Search failed with error:', error)
+      addNotification(`Search failed: ${error.message}`, 'error')
+    } finally {
+      setLoading(false)
+      console.log('🏁 Search process completed')
     }
-    
-    setLoading(false)
   }
 
   const getAIRecommendations = async (flight) => {
