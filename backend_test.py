@@ -11,8 +11,8 @@ import os
 import sys
 from datetime import datetime
 
-# Production URL configuration
-BASE_URL = "https://airease.preview.emergentagent.com"
+# Production URL configuration - fallback to local for testing
+BASE_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
 class AireaseProductionTester:
