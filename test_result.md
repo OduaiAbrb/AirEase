@@ -188,6 +188,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PHASE 2 TESTED: Watchlist retrieval working perfectly with enhanced fields. Retrieved 3 watchlists with all Phase 2 enhancements including email, active status, and notification counters."
+        - working: true
+          agent: "testing"
+          comment: "✅ CLEANED UP VERSION TESTED: Watchlist retrieval working perfectly with simplified structure. Successfully retrieved 4 watchlists from MongoDB with proper response format. Sample watchlist: AMM → LHR at $500. Clean 'watchlists' array structure confirmed."
 
   - task: "Email Notification System"
     implemented: true
