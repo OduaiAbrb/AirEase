@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-Airease Backend API Testing Script - Cleaned Up Version
-Tests the simplified Google Flights-style backend functionality
+Comprehensive Backend Testing for Airease Application
+Testing the completely rebuilt application with Emergent LLM integration for PRODUCTION environment
 """
 
 import requests
 import json
-import sys
+import time
 import os
+import sys
 from datetime import datetime
 
-# Get base URL from environment - test locally first due to external 502 routing issue
-BASE_URL = "http://localhost:3000"
+# Production URL configuration
+BASE_URL = "https://airease.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 def print_test_result(test_name, success, details=""):
