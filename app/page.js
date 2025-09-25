@@ -384,7 +384,167 @@ export default function App() {
     }
   }
 
-  // SPLASH SCREEN
+  // LOGIN MODAL
+  if (showLogin) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <Card className="w-full max-w-md mx-4 bg-white shadow-2xl">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <LogIn className="h-8 w-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl">Welcome Back!</CardTitle>
+            <p className="text-gray-600">Sign in to your Airease account</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <Input
+                type="email"
+                placeholder="john@airease.com"
+                value={loginForm.email}
+                onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                className="h-12"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <Input
+                type="password"
+                placeholder="password123"
+                value={loginForm.password}
+                onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                className="h-12"
+              />
+            </div>
+            
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-xs text-blue-700 font-medium mb-1">Demo Accounts:</p>
+              <div className="text-xs text-blue-600 space-y-1">
+                <div>👨‍💼 john@airease.com / password123</div>
+                <div>👩‍💻 sarah@airease.com / travel2024</div>
+                <div>👨‍🎨 mike@airease.com / flyme456</div>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <Button onClick={handleLogin} className="flex-1 bg-blue-600 hover:bg-blue-700 h-12">
+                Sign In
+              </Button>
+              <Button onClick={() => setShowLogin(false)} variant="outline" className="flex-1 h-12">
+                Cancel
+              </Button>
+            </div>
+            
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <button 
+                  onClick={() => {setShowLogin(false); setShowSignup(true)}}
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  Sign up here
+                </button>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // SIGNUP MODAL
+  if (showSignup) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <Card className="w-full max-w-md mx-4 bg-white shadow-2xl max-h-[90vh] overflow-y-auto">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <UserPlus className="h-8 w-8 text-white" />
+            </div>
+            <CardTitle className="text-2xl">Join Airease!</CardTitle>
+            <p className="text-gray-600">Create your travel profile</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <Input
+                type="text"
+                placeholder="John Doe"
+                value={signupForm.name}
+                onChange={(e) => setSignupForm({...signupForm, name: e.target.value})}
+                className="h-12"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <Input
+                type="email"
+                placeholder="your@email.com"
+                value={signupForm.email}
+                onChange={(e) => setSignupForm({...signupForm, email: e.target.value})}
+                className="h-12"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <Input
+                type="password"
+                placeholder="Create a password"
+                value={signupForm.password}
+                onChange={(e) => setSignupForm({...signupForm, password: e.target.value})}
+                className="h-12"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+              <Input
+                type="password"
+                placeholder="Confirm your password"
+                value={signupForm.confirmPassword}
+                onChange={(e) => setSignupForm({...signupForm, confirmPassword: e.target.value})}
+                className="h-12"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Travel Preference</label>
+              <Select value={signupForm.travelPreference} onValueChange={(value) => setSignupForm({...signupForm, travelPreference: value})}>
+                <SelectTrigger className="h-12">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="budget">💰 Budget Conscious</SelectItem>
+                  <SelectItem value="business">👔 Business Traveler</SelectItem>
+                  <SelectItem value="adventure">🌟 Adventure Seeker</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex space-x-3">
+              <Button onClick={handleSignup} className="flex-1 bg-green-600 hover:bg-green-700 h-12">
+                Create Account
+              </Button>
+              <Button onClick={() => setShowSignup(false)} variant="outline" className="flex-1 h-12">
+                Cancel
+              </Button>
+            </div>
+            
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <button 
+                  onClick={() => {setShowSignup(false); setShowLogin(true)}}
+                  className="text-blue-600 hover:underline font-medium"
+                >
+                  Sign in here
+                </button>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
   if (showSplash) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 flex items-center justify-center z-50">
