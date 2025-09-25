@@ -339,7 +339,7 @@ test_plan:
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
-  phase3_complete: true
+  cleaned_up_complete: true
 
 agent_communication:
     - agent: "testing"
