@@ -151,6 +151,66 @@ export default function App() {
     }, 5000)
   }
 
+  // Authentication Functions
+  const handleLogin = () => {
+    const user = syntheticUsers[loginForm.email]
+    if (user && user.password === loginForm.password) {
+      setCurrentUser(user)
+      setIsLoggedIn(true)
+      setShowLogin(false)
+      setLoginForm({ email: '', password: '' })
+      setSearchParams({...searchParams, email: user.email})
+      addNotification(`Welcome back, ${user.name}! 🎉`, 'success')
+    } else {
+      addNotification('Invalid email or password. Try: john@airease.com / password123', 'error')
+    }
+  }
+
+  const handleSignup = () => {
+    if (signupForm.password !== signupForm.confirmPassword) {
+      addNotification('Passwords do not match', 'error')
+      return
+    }
+
+    if (syntheticUsers[signupForm.email]) {
+      addNotification('Email already exists. Try logging in instead.', 'error')
+      return
+    }
+
+    // Create new synthetic user
+    const newUser = {
+      id: `user_${Date.now()}`,
+      name: signupForm.name,
+      email: signupForm.email,
+      password: signupForm.password,
+      avatar: '👤',
+      preferenceLevel: signupForm.travelPreference === 'business' ? 'Business Traveler' : 
+                      signupForm.travelPreference === 'adventure' ? 'Adventure Seeker' : 'Budget Conscious',
+      totalFlights: 0,
+      savedAmount: '$0',
+      favoriteDestinations: [],
+      travelStatus: 'New Member',
+      joinedDate: new Date().toISOString().split('T')[0],
+      upcomingTrips: 0,
+      notifications: true
+    }
+
+    syntheticUsers[signupForm.email] = newUser
+    setCurrentUser(newUser)
+    setIsLoggedIn(true)
+    setShowSignup(false)
+    setSignupForm({ name: '', email: '', password: '', confirmPassword: '', travelPreference: 'budget' })
+    setSearchParams({...searchParams, email: newUser.email})
+    addNotification(`Welcome to Airease, ${newUser.name}! 🚀`, 'success')
+  }
+
+  const handleLogout = () => {
+    setCurrentUser(null)
+    setIsLoggedIn(false)
+    setSearchParams({...searchParams, email: 'user@airease.com'})
+    addNotification('You have been logged out', 'info')
+  }
+
   // Enhanced realistic stats
   const realisticStats = [
     {
