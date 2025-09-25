@@ -113,6 +113,18 @@ export default function App() {
     }
   }
 
+  // Homepage plane animation effect
+  useEffect(() => {
+    if (currentPage === 'home' && !showSplash) {
+      const timer = setTimeout(() => {
+        setShowPlaneAnimation(true)
+        setTimeout(() => setShowPlaneAnimation(false), 6000)
+      }, 2000) // Start animation 2 seconds after homepage loads
+      
+      return () => clearTimeout(timer)
+    }
+  }, [currentPage, showSplash])
+
   // Splash screen effect
   useEffect(() => {
     const timer = setTimeout(() => {
