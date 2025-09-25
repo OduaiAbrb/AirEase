@@ -1,17 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plane, Search, MapPin, Calendar, DollarSign, Heart, Clock, ArrowRight, Mail, Brain, CheckCircle, AlertCircle, Sparkles, Zap, Target, Settings, Filter, Camera, CreditCard, Star, Wifi, Coffee, Monitor, Shield, TrendingDown, TrendingUp, AlertTriangle, Phone, LifeBuoy } from "lucide-react"
+import { Plane, Search, MapPin, Calendar, DollarSign, Heart, Clock, ArrowRight, Mail, Brain, CheckCircle, AlertCircle, Sparkles, Zap, Target, Settings, Filter, Camera, CreditCard, Star, Wifi, Coffee, Monitor, Shield, TrendingDown, TrendingUp, AlertTriangle, Phone, LifeBuoy, Navigation, Map, Compass, Route } from "lucide-react"
 import Link from 'next/link'
 import { generateRealisticFlights } from '../lib/realisticFlightData.js'
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true)
   const [currentPage, setCurrentPage] = useState('home')
   const [searchParams, setSearchParams] = useState({
     from: '',
@@ -43,6 +44,15 @@ export default function App() {
   const [recoveryOptions, setRecoveryOptions] = useState([])
   const [recoveryLoading, setRecoveryLoading] = useState(false)
 
+  // Splash screen effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false)
+    }, 3500) // Show splash for 3.5 seconds
+
+    return () => clearTimeout(timer)
+  }, [])
+
   const addNotification = (message, type = 'success') => {
     const notification = { id: Date.now(), message, type }
     setNotifications(prev => [...prev, notification])
@@ -51,7 +61,224 @@ export default function App() {
     }, 5000)
   }
 
-  // FIXED: Direct search handler that properly calls API
+  // Enhanced realistic stats
+  const realisticStats = [
+    {
+      number: "47K+",
+      label: "Flights Monitored",
+      description: "Active flight tracking"
+    },
+    {
+      number: "$890K",
+      label: "Saved by Users",
+      description: "Total user savings"
+    },
+    {
+      number: "94%",
+      label: "Success Rate",
+      description: "Booking success"
+    }
+  ]
+
+  // Get destination images and info
+  const getDestinationInfo = (cityCode) => {
+    const destinations = {
+      'LHR': {
+        city: 'London',
+        country: 'United Kingdom',
+        image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800',
+        highlights: ['Big Ben', 'Tower Bridge', 'British Museum', 'Hyde Park'],
+        tips: [
+          'Book attractions online to skip lines',
+          'Use Oyster Card for public transport',
+          'Try traditional afternoon tea',
+          'Visit Camden Market for unique finds'
+        ]
+      },
+      'JFK': {
+        city: 'New York',
+        country: 'United States',
+        image: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800',
+        highlights: ['Times Square', 'Central Park', 'Statue of Liberty', 'Empire State Building'],
+        tips: [
+          'Get MetroCard for subway travel',
+          'Visit Central Park early morning',
+          'Try authentic New York pizza',
+          'Book Broadway shows in advance'
+        ]
+      },
+      'CDG': {
+        city: 'Paris',
+        country: 'France',
+        image: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=800',
+        highlights: ['Eiffel Tower', 'Louvre Museum', 'Notre-Dame', 'Champs-Élysées'],
+        tips: [
+          'Buy museum pass for multiple attractions',
+          'Learn basic French phrases',
+          'Try local bakeries for croissants',
+          'Walk along the Seine River'
+        ]
+      },
+      'DXB': {
+        city: 'Dubai',
+        country: 'UAE',
+        image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800',
+        highlights: ['Burj Khalifa', 'Dubai Mall', 'Palm Jumeirah', 'Desert Safari'],
+        tips: [
+          'Dress modestly when visiting mosques',
+          'Use Dubai Metro - very efficient',
+          'Try traditional Emirati cuisine',
+          'Visit during cooler months (Nov-Mar)'
+        ]
+      },
+      'AMM': {
+        city: 'Amman',
+        country: 'Jordan',
+        image: 'https://images.unsplash.com/photo-1539650116574-75c0c6d73dd4?w=800',
+        highlights: ['Petra', 'Dead Sea', 'Roman Theatre', 'Citadel'],
+        tips: [
+          'Visit Petra early to avoid crowds',
+          'Try mansaf - the national dish',
+          'Respect local customs and dress code',
+          'Bargain in traditional souks'
+        ]
+      }
+    }
+    
+    return destinations[cityCode] || {
+      city: 'Unknown',
+      country: '',
+      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800',
+      highlights: ['Explore local attractions'],
+      tips: ['Research local customs', 'Learn basic phrases', 'Try local cuisine']
+    }
+  }
+
+  // Get airport gate map (synthetic)
+  const getAirportGateInfo = (airportCode, flightNumber) => {
+    const airports = {
+      'LHR': {
+        name: 'Heathrow Airport',
+        terminal: 'Terminal 5',
+        gate: 'A12',
+        mapImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600',
+        walkTime: '12 minutes',
+        directions: [
+          'Exit security and turn right',
+          'Follow signs to Gates A10-A20',
+          'Take moving walkway for 200m',
+          'Gate A12 will be on your left'
+        ]
+      },
+      'JFK': {
+        name: 'John F. Kennedy Airport',
+        terminal: 'Terminal 4',
+        gate: 'B7',
+        mapImage: 'https://images.unsplash.com/photo-1578575436955-ef29da568c6c?w=600',
+        walkTime: '8 minutes',
+        directions: [
+          'Head straight from security',
+          'Follow blue signs to Gates B1-B10',
+          'Pass duty-free shops on your right',
+          'Gate B7 next to the food court'
+        ]
+      },
+      'CDG': {
+        name: 'Charles de Gaulle Airport',
+        terminal: 'Terminal 2E',
+        gate: 'K25',
+        mapImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600',
+        walkTime: '15 minutes',
+        directions: [
+          'Take escalator down to Level 0',
+          'Board CDGVAL shuttle to Terminal 2E',
+          'Follow signs to Gates K20-K30',
+          'Gate K25 is at the end of the pier'
+        ]
+      },
+      'DXB': {
+        name: 'Dubai International Airport',
+        terminal: 'Terminal 3',
+        gate: 'C9',
+        mapImage: 'https://images.unsplash.com/photo-1578575436955-ef29da568c6c?w=600',
+        walkTime: '10 minutes',
+        directions: [
+          'Exit immigration and continue straight',
+          'Take metro link to Concourse C',
+          'Follow golden signs to Gates C1-C15',
+          'Gate C9 overlooks the runway'
+        ]
+      },
+      'AMM': {
+        name: 'Queen Alia International Airport',
+        terminal: 'Terminal 1',
+        gate: 'D4',
+        mapImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600',
+        walkTime: '6 minutes',
+        directions: [
+          'Head towards the main departure area',
+          'Follow signs to Gates D1-D10',
+          'Pass the duty-free shopping area',
+          'Gate D4 is near the restaurant area'
+        ]
+      }
+    }
+
+    return airports[airportCode] || {
+      name: 'Airport',
+      terminal: 'Main Terminal',
+      gate: 'A1',
+      mapImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600',
+      walkTime: '10 minutes',
+      directions: ['Follow airport signs to your gate']
+    }
+  }
+
+  // SPLASH SCREEN
+  if (showSplash) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 flex items-center justify-center z-50">
+        <div className="text-center">
+          {/* Animated plane that zooms in and stops */}
+          <div className="mb-8 relative">
+            <div className="animate-[zoomInStop_3s_ease-in-out_forwards] transform scale-0">
+              <div className="w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
+                <Plane className="h-16 w-16 text-white transform rotate-45" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Text that appears after plane animation */}
+          <div className="animate-[fadeInDelay_3.5s_ease-in-out_forwards] opacity-0">
+            <h1 className="text-6xl font-bold text-white mb-4">Airease</h1>
+            <p className="text-2xl text-blue-200">Never Miss a Perfect Flight</p>
+            
+            {/* Loading dots */}
+            <div className="flex justify-center space-x-2 mt-8">
+              <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes zoomInStop {
+            0% { transform: scale(0); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+          }
+          
+          @keyframes fadeInDelay {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+      </div>
+    )
+  }
+
+  // Fixed search handler
   const handleDirectSearch = async () => {
     if (!searchParams.from || !searchParams.to || !searchParams.departDate) {
       addNotification('Please fill in origin, destination, and departure date', 'error')
@@ -201,6 +428,7 @@ export default function App() {
     return matches
   }
 
+  // Enhanced AI recommendations with destination info and airport navigation
   const getAIRecommendations = async (flight) => {
     setSelectedFlight(flight)
     setAILoading(true)
@@ -216,7 +444,17 @@ export default function App() {
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
-          setAIRecommendations(data.recommendations)
+          // Enhance recommendations with destination info and gate details
+          const destinationInfo = getDestinationInfo(flight.to)
+          const gateInfo = getAirportGateInfo(flight.to, flight.flightNumber)
+          
+          const enhancedRecommendations = {
+            ...data.recommendations,
+            destinationInfo,
+            gateInfo
+          }
+          
+          setAIRecommendations(enhancedRecommendations)
           addNotification('AI travel assistant ready with personalized recommendations!')
         }
       }
@@ -228,22 +466,15 @@ export default function App() {
   }
 
   const proceedToBooking = (flight) => {
-    // Store selected flight for booking flow
     localStorage.setItem('selectedFlight', JSON.stringify(flight))
-    
-    // Redirect to auto-purchase with pre-filled data
     window.location.href = `/auto-purchase?flight=${flight.id}&price=${flight.price}`
   }
 
   const scanBoardingPass = (flight) => {
-    // Store flight for boarding pass workflow
     localStorage.setItem('flightForScanning', JSON.stringify(flight))
-    
-    // Redirect to boarding pass scanner
     window.location.href = `/boarding-pass?flight=${flight.id}`
   }
 
-  // NEW: Missed Flight Recovery Handler
   const handleMissedFlight = (flight) => {
     setMissedFlightData(flight)
     setCurrentPage('missed-flight')
@@ -361,20 +592,17 @@ export default function App() {
               </p>
             </div>
             
-            {/* Quick Stats with animation */}
+            {/* Enhanced Realistic Stats */}
             <div className="flex justify-center space-x-8 mb-12">
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-white animate-in zoom-in duration-500">250K+</div>
-                <div className="text-blue-200 text-sm">Flights Monitored</div>
-              </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-white animate-in zoom-in duration-500 delay-100">$2.3M</div>
-                <div className="text-blue-200 text-sm">Saved by Users</div>
-              </div>
-              <div className="text-center transform hover:scale-110 transition-transform duration-300">
-                <div className="text-3xl font-bold text-white animate-in zoom-in duration-500 delay-200">98%</div>
-                <div className="text-blue-200 text-sm">Success Rate</div>
-              </div>
+              {realisticStats.map((stat, index) => (
+                <div key={index} className="text-center transform hover:scale-110 transition-transform duration-300">
+                  <div className="text-3xl font-bold text-white animate-in zoom-in duration-500" style={{animationDelay: `${index * 100}ms`}}>
+                    {stat.number}
+                  </div>
+                  <div className="text-blue-200 text-sm">{stat.label}</div>
+                  <div className="text-blue-300 text-xs opacity-75">{stat.description}</div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -528,7 +756,7 @@ export default function App() {
               </div>
               <div className="flex items-center space-x-2 transform hover:scale-110 transition-transform duration-300">
                 <Star className="h-5 w-5 text-white" />
-                <span className="text-white text-sm">4.9/5 Rating</span>
+                <span className="text-white text-sm">4.8/5 Rating</span>
               </div>
             </div>
           </div>
@@ -721,7 +949,6 @@ export default function App() {
                   {recoveryOptions.filter(option => option.type === 'next-day').map((flight, index) => (
                     <Card key={index} className="border-l-4 border-l-blue-500 hover:shadow-xl transition-all duration-300">
                       <CardContent className="p-6">
-                        {/* Same layout as same-day options but with blue theme */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-6">
                             <div className="text-center">
@@ -1040,7 +1267,7 @@ export default function App() {
             </div>
           )}
 
-          {/* AI Recommendations Panel with enhanced animations */}
+          {/* Enhanced AI Recommendations Panel with destination images and gate info */}
           {selectedFlight && (
             <Card className="mt-8 border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 animate-in slide-in-from-bottom-5 duration-500">
               <CardHeader>
@@ -1058,86 +1285,182 @@ export default function App() {
                     </div>
                   </div>
                 ) : aiRecommendations ? (
-                  <div className="grid md:grid-cols-2 gap-6 animate-in fade-in duration-1000">
-                    <div className="space-y-4">
-                      <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
-                        <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                          🌤️ Weather & Packing Guide
-                        </h4>
-                        <div className="mb-4">
-                          <Badge className="bg-blue-100 text-blue-800 animate-pulse">
-                            {aiRecommendations.weatherInfo.temp}°C, {aiRecommendations.weatherInfo.condition}
-                          </Badge>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          <div>
-                            <h5 className="text-sm font-medium text-gray-700 mb-2">👔 Essential Clothing</h5>
-                            <ul className="text-sm text-gray-600 space-y-1">
-                              {aiRecommendations.packingList.clothing.slice(0, 4).map((item, idx) => (
-                                <li key={idx} className="flex items-center space-x-2 animate-in slide-in-from-left-3 duration-300" style={{animationDelay: `${idx * 100}ms`}}>
-                                  <CheckCircle className="h-3 w-3 text-green-500" />
-                                  <span>{item}</span>
-                                </li>
-                              ))}
-                            </ul>
+                  <div className="space-y-6">
+                    {/* Destination Information with Image */}
+                    {aiRecommendations.destinationInfo && (
+                      <Card className="bg-white shadow-sm">
+                        <CardContent className="p-6">
+                          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            🌍 Welcome to {aiRecommendations.destinationInfo.city}!
+                          </h3>
+                          
+                          <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                              <img 
+                                src={aiRecommendations.destinationInfo.image} 
+                                alt={aiRecommendations.destinationInfo.city}
+                                className="w-full h-48 object-cover rounded-lg mb-4"
+                              />
+                              <div className="space-y-2">
+                                <h4 className="font-semibold text-gray-800">🏛️ Top Attractions</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {aiRecommendations.destinationInfo.highlights.map((highlight, idx) => (
+                                    <Badge key={idx} variant="outline" className="text-xs">
+                                      {highlight}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-gray-800 mb-3">💡 Local Tips</h4>
+                              <div className="space-y-2">
+                                {aiRecommendations.destinationInfo.tips.map((tip, idx) => (
+                                  <div key={idx} className="flex items-start space-x-2">
+                                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                                    <span className="text-sm text-gray-700">{tip}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Airport Gate Navigation */}
+                    {aiRecommendations.gateInfo && (
+                      <Card className="bg-white shadow-sm">
+                        <CardContent className="p-6">
+                          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <Navigation className="h-5 w-5" />
+                            🛫 Gate Navigation - {aiRecommendations.gateInfo.name}
+                          </h3>
+                          
+                          <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                              <img 
+                                src={aiRecommendations.gateInfo.mapImage} 
+                                alt="Airport Map"
+                                className="w-full h-32 object-cover rounded-lg mb-4"
+                              />
+                              <div className="space-y-2">
+                                <div className="flex items-center space-x-2">
+                                  <Map className="h-4 w-4 text-blue-600" />
+                                  <span className="font-semibold">{aiRecommendations.gateInfo.terminal}</span>
+                                  <span className="text-gray-600">Gate {aiRecommendations.gateInfo.gate}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Clock className="h-4 w-4 text-orange-600" />
+                                  <span className="text-sm text-gray-700">{aiRecommendations.gateInfo.walkTime} walk</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                <Route className="h-4 w-4" />
+                                🚶 Walking Directions
+                              </h4>
+                              <div className="space-y-2">
+                                {aiRecommendations.gateInfo.directions.map((direction, idx) => (
+                                  <div key={idx} className="flex items-start space-x-2">
+                                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-semibold text-blue-600">
+                                      {idx + 1}
+                                    </div>
+                                    <span className="text-sm text-gray-700">{direction}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Traditional AI Recommendations */}
+                    <div className="grid md:grid-cols-2 gap-6 animate-in fade-in duration-1000">
+                      <div className="space-y-4">
+                        <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
+                          <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            🌤️ Weather & Packing Guide
+                          </h4>
+                          <div className="mb-4">
+                            <Badge className="bg-blue-100 text-blue-800 animate-pulse">
+                              {aiRecommendations.weatherInfo.temp}°C, {aiRecommendations.weatherInfo.condition}
+                            </Badge>
                           </div>
                           
-                          <div>
-                            <h5 className="text-sm font-medium text-gray-700 mb-2">☔ Weather Essentials</h5>
-                            <ul className="text-sm text-gray-600 space-y-1">
-                              {aiRecommendations.packingList.weather.slice(0, 3).map((item, idx) => (
-                                <li key={idx} className="flex items-center space-x-2 animate-in slide-in-from-left-3 duration-300" style={{animationDelay: `${idx * 150}ms`}}>
-                                  <CheckCircle className="h-3 w-3 text-blue-500" />
-                                  <span>{item}</span>
-                                </li>
-                              ))}
-                            </ul>
+                          <div className="space-y-3">
+                            <div>
+                              <h5 className="text-sm font-medium text-gray-700 mb-2">👔 Essential Clothing</h5>
+                              <ul className="text-sm text-gray-600 space-y-1">
+                                {aiRecommendations.packingList.clothing.slice(0, 4).map((item, idx) => (
+                                  <li key={idx} className="flex items-center space-x-2 animate-in slide-in-from-left-3 duration-300" style={{animationDelay: `${idx * 100}ms`}}>
+                                    <CheckCircle className="h-3 w-3 text-green-500" />
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            
+                            <div>
+                              <h5 className="text-sm font-medium text-gray-700 mb-2">☔ Weather Essentials</h5>
+                              <ul className="text-sm text-gray-600 space-y-1">
+                                {aiRecommendations.packingList.weather.slice(0, 3).map((item, idx) => (
+                                  <li key={idx} className="flex items-center space-x-2 animate-in slide-in-from-left-3 duration-300" style={{animationDelay: `${idx * 150}ms`}}>
+                                    <CheckCircle className="h-3 w-3 text-blue-500" />
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
+                          <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            ⏰ Smart Timeline
+                          </h4>
+                          <div className="text-2xl font-bold text-orange-600 mb-2 animate-pulse">
+                            Leave by: {aiRecommendations.timeManagement.leaveBy}
+                          </div>
+                          <div className="text-sm text-gray-600 mb-4">
+                            Total prep time: {aiRecommendations.timeManagement.totalMinutes} minutes
+                          </div>
+                          
+                          <div className="space-y-2">
+                            {aiRecommendations.timeManagement.timeline?.slice(0, 4).map((item, idx) => (
+                              <div key={idx} className="flex justify-between text-sm animate-in slide-in-from-right-3 duration-300" style={{animationDelay: `${idx * 100}ms`}}>
+                                <span className="text-gray-600">{item.task}</span>
+                                <span className="font-medium text-orange-600">{item.time}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
 
                       <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
                         <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                          ⏰ Smart Timeline
+                          💡 Local Travel Tips
                         </h4>
-                        <div className="text-2xl font-bold text-orange-600 mb-2 animate-pulse">
-                          Leave by: {aiRecommendations.timeManagement.leaveBy}
-                        </div>
-                        <div className="text-sm text-gray-600 mb-4">
-                          Total prep time: {aiRecommendations.timeManagement.totalMinutes} minutes
-                        </div>
-                        
-                        <div className="space-y-2">
-                          {aiRecommendations.timeManagement.timeline?.slice(0, 4).map((item, idx) => (
-                            <div key={idx} className="flex justify-between text-sm animate-in slide-in-from-right-3 duration-300" style={{animationDelay: `${idx * 100}ms`}}>
-                              <span className="text-gray-600">{item.task}</span>
-                              <span className="font-medium text-orange-600">{item.time}</span>
+                        <div className="space-y-4">
+                          {aiRecommendations.travelTips.slice(0, 4).map((tip, idx) => (
+                            <div key={idx} className="border-l-4 border-purple-400 pl-4 py-2 animate-in slide-in-from-bottom-3 duration-300" style={{animationDelay: `${idx * 150}ms`}}>
+                              <h5 className="text-sm font-medium text-purple-800">{tip.category}</h5>
+                              <p className="text-sm text-gray-600 mt-1">{tip.tip}</p>
                             </div>
                           ))}
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-white p-6 rounded-lg shadow-sm transform hover:scale-105 transition-transform duration-300">
-                      <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        💡 Local Travel Tips
-                      </h4>
-                      <div className="space-y-4">
-                        {aiRecommendations.travelTips.slice(0, 4).map((tip, idx) => (
-                          <div key={idx} className="border-l-4 border-purple-400 pl-4 py-2 animate-in slide-in-from-bottom-3 duration-300" style={{animationDelay: `${idx * 150}ms`}}>
-                            <h5 className="text-sm font-medium text-purple-800">{tip.category}</h5>
-                            <p className="text-sm text-gray-600 mt-1">{tip.tip}</p>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg animate-in fade-in duration-1000">
-                        <h5 className="font-medium text-gray-800 mb-2">✨ Pro Tip</h5>
-                        <p className="text-sm text-gray-600">
-                          Download offline maps and key phrases in the local language. 
-                          Consider getting travel insurance for international trips.
-                        </p>
+                        
+                        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg animate-in fade-in duration-1000">
+                          <h5 className="font-medium text-gray-800 mb-2">✨ Pro Tip</h5>
+                          <p className="text-sm text-gray-600">
+                            Download offline maps and key phrases in the local language. 
+                            Consider getting travel insurance for international trips.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
