@@ -356,7 +356,7 @@ export default function App() {
                           className="border-blue-200 hover:bg-blue-50"
                         >
                           <Heart className="h-4 w-4 mr-1" />
-                          Watch Price
+                          Watch & Get Alerts
                         </Button>
                         <Button 
                           size="sm"
@@ -375,32 +375,69 @@ export default function App() {
 
         {/* Active Watchlists */}
         {watchlists.length > 0 && (
-          <div>
+          <div className="mb-8">
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Bell className="h-6 w-6" />
-              Your Price Watches
+              Your Price Watches ({watchlists.length})
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               {watchlists.map((watch, index) => (
-                <Card key={index} className="shadow-md border-0 bg-gradient-to-br from-green-50 to-blue-50">
+                <Card key={index} className={`shadow-md border-0 ${watch.active ? 'bg-gradient-to-br from-green-50 to-blue-50' : 'bg-gradient-to-br from-gray-50 to-gray-100'}`}>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h4 className="font-semibold text-lg">{watch.from} → {watch.to}</h4>
-                        <p className="text-sm text-gray-600">{watch.departDate}</p>
+                        <h4 className="font-semibold text-lg flex items-center gap-2">
+                          {watch.from} → {watch.to}
+                          {!watch.active && <Badge variant="secondary">Paused</Badge>}
+                        </h4>
+                        <p className="text-sm text-gray-600">{watch.departDate || 'Flexible dates'}</p>
+                        <p className="text-xs text-gray-500">Email: {watch.email}</p>
                       </div>
-                      <Badge className="bg-green-100 text-green-700">
-                        Target: ${watch.targetPrice}
-                      </Badge>
+                      <div className="text-right">
+                        <Badge className={watch.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}>
+                          Target: ${watch.targetPrice}
+                        </Badge>
+                        {watch.lastMatch && (
+                          <Badge className="bg-blue-100 text-blue-700 ml-2">
+                            Last match: ${watch.matchedPrice}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
+                    
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-600">
-                        <Clock className="h-4 w-4 inline mr-1" />
-                        Monitoring every hour
+                      <div className="text-sm text-gray-600 flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        {watch.active ? 'Monitoring active' : 'Monitoring paused'}
+                        {watch.notificationCount > 0 && (
+                          <Badge variant="outline" className="text-xs">
+                            {watch.notificationCount} alerts sent
+                          </Badge>
+                        )}
                       </div>
-                      <Button size="sm" variant="ghost">
-                        <Star className="h-4 w-4" />
-                      </Button>
+                      
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => toggleWatch(watch.id, watch.active)}
+                          className="h-8 w-8 p-0"
+                        >
+                          {watch.active ? 
+                            <PauseCircle className="h-4 w-4 text-orange-600" /> : 
+                            <PlayCircle className="h-4 w-4 text-green-600" />
+                          }
+                        </Button>
+                        
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => deleteWatch(watch.id)}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -409,32 +446,94 @@ export default function App() {
           </div>
         )}
 
-        {/* Features Preview */}
-        <div className="mt-16 grid md:grid-cols-3 gap-8">
-          <Card className="text-center p-6 border-0 bg-white/60 backdrop-blur-sm">
-            <div className="p-4 bg-blue-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <Bell className="h-8 w-8 text-blue-600" />
-            </div>
-            <h3 className="font-bold text-lg mb-2">Smart Notifications</h3>
-            <p className="text-gray-600">Get instant email alerts when your target price is hit</p>
-          </Card>
-          
-          <Card className="text-center p-6 border-0 bg-white/60 backdrop-blur-sm">
-            <div className="p-4 bg-green-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <Clock className="h-8 w-8 text-green-600" />
-            </div>
-            <h3 className="font-bold text-lg mb-2">Time Budgeting</h3>
-            <p className="text-gray-600">Calculate exact departure times from your location</p>
-          </Card>
-          
-          <Card className="text-center p-6 border-0 bg-white/60 backdrop-blur-sm">
-            <div className="p-4 bg-purple-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <Star className="h-8 w-8 text-purple-600" />
-            </div>
-            <h3 className="font-bold text-lg mb-2">AI Packing</h3>
-            <p className="text-gray-600">Get personalized packing recommendations</p>
-          </Card>
+        {/* Enhanced Features Preview */}
+        <div className="mt-16">
+          <h3 className="text-2xl font-bold text-center mb-8">✨ Smart Monitoring Features</h3>
+          <div className="grid md:grid-cols-4 gap-6">
+            <Card className="text-center p-6 border-0 bg-white/60 backdrop-blur-sm">
+              <div className="p-4 bg-blue-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Mail className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Email Alerts</h3>
+              <p className="text-gray-600 text-sm">Instant notifications when prices hit your target</p>
+            </Card>
+            
+            <Card className="text-center p-6 border-0 bg-white/60 backdrop-blur-sm">
+              <div className="p-4 bg-green-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Clock className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Price Monitoring</h3>
+              <p className="text-gray-600 text-sm">Automated hourly checks across multiple airlines</p>
+            </Card>
+            
+            <Card className="text-center p-6 border-0 bg-white/60 backdrop-blur-sm">
+              <div className="p-4 bg-purple-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <Star className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Smart Recommendations</h3>
+              <p className="text-gray-600 text-sm">AI-powered packing and travel suggestions</p>
+            </Card>
+            
+            <Card className="text-center p-6 border-0 bg-white/60 backdrop-blur-sm">
+              <div className="p-4 bg-orange-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                <PlayCircle className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Auto-Purchase</h3>
+              <p className="text-gray-600 text-sm">Optional automatic booking when targets are met</p>
+            </Card>
+          </div>
         </div>
+
+        {/* Email Demo Section */}
+        {showEmailDemo && (
+          <div className="mt-12">
+            <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-800">
+                  <Mail className="h-5 w-5" />
+                  Email Notification Preview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-white p-6 rounded-lg border">
+                  <div className="text-center mb-4">
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg">
+                      <h2 className="text-xl font-bold">✈️ Price Alert: Your Target Hit!</h2>
+                      <p>Great news! Your watched flight has dropped to your target price.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="border-2 border-green-300 p-4 rounded-lg bg-green-50">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-lg">AMM → LHR</div>
+                        <div>Qatar Airways QR123</div>
+                        <div>Departure: 08:30</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-green-600">$450</div>
+                        <div className="text-sm line-through text-gray-500">Target: $500</div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center mt-4">
+                      <Button className="bg-green-600 hover:bg-green-700 text-white mr-2">
+                        📱 Book Now
+                      </Button>
+                      <Button variant="outline">
+                        👀 View All Watches
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 text-sm text-gray-600 text-center">
+                    <p>This is how your email notifications will look when price targets are hit!</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )
