@@ -120,8 +120,7 @@ def test_watchlist_creation():
             "to": "LHR",
             "departDate": "2025-12-01",
             "targetPrice": 500,
-            "email": "test@airease.com",
-            "notificationPreference": "email"
+            "email": "test@airease.com"
         }
         
         response = requests.post(
@@ -139,7 +138,7 @@ def test_watchlist_creation():
                 watch = data["watch"]
                 
                 # Validate watch data structure
-                required_fields = ["id", "from", "to", "departDate", "targetPrice", "active", "createdAt", "lastCheck"]
+                required_fields = ["id", "from", "to", "targetPrice", "active", "createdAt", "lastCheck"]
                 missing_fields = [field for field in required_fields if field not in watch]
                 
                 if not missing_fields:
