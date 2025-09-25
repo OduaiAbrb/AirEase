@@ -1,61 +1,5 @@
 import { NextResponse } from 'next/server'
-import { v4 as uuidv4 } from 'uuid'
-
-// Enhanced mock flight data generator
-function generateMockFlights(searchParams) {
-  console.log('🔍 Generating mock flights for:', searchParams)
-  
-  const airlines = [
-    { name: 'Qatar Airways', code: 'QR', quality: 'premium' },
-    { name: 'Emirates', code: 'EK', quality: 'premium' },
-    { name: 'Turkish Airlines', code: 'TK', quality: 'good' },
-    { name: 'Lufthansa', code: 'LH', quality: 'good' },
-    { name: 'British Airways', code: 'BA', quality: 'good' },
-    { name: 'KLM', code: 'KL', quality: 'standard' }
-  ]
-  
-  const flights = []
-  const basePrice = parseInt(searchParams.maxPrice) || 600
-  
-  for (let i = 0; i < 6; i++) {
-    const airline = airlines[Math.floor(Math.random() * airlines.length)]
-    
-    const priceMultiplier = airline.quality === 'premium' ? 1.2 : 
-                           airline.quality === 'good' ? 1.0 : 0.8
-    const variance = Math.random() * 400 - 200
-    const price = Math.max(150, Math.floor((basePrice * priceMultiplier) + variance))
-    
-    const depHour = Math.floor(Math.random() * 18) + 6
-    const depMinute = Math.floor(Math.random() * 4) * 15
-    const flightHours = Math.floor(Math.random() * 8) + 3
-    const flightMinutes = Math.floor(Math.random() * 4) * 15
-    
-    const arrHour = (depHour + flightHours) % 24
-    const arrMinute = (depMinute + flightMinutes) % 60
-    
-    const nextDay = depHour + flightHours >= 24
-    
-    flights.push({
-      id: uuidv4(),
-      from: searchParams.from || 'AMM',
-      to: searchParams.to || 'LHR',
-      airline: airline.name,
-      flightNumber: `${airline.code}${Math.floor(Math.random() * 899) + 100}`,
-      departureTime: `${String(depHour).padStart(2, '0')}:${String(depMinute).padStart(2, '0')}`,
-      arrivalTime: `${String(arrHour).padStart(2, '0')}:${String(arrMinute).padStart(2, '0')}${nextDay ? '+1' : ''}`,
-      duration: `${flightHours}h ${flightMinutes}m`,
-      price: price,
-      stops: Math.random() < 0.3 ? 1 : 0,
-      baggage: airline.quality === 'premium' ? '2 bags included' : '1 bag included',
-      quality: airline.quality,
-      amenities: airline.quality === 'premium' ? 
-        ['Wi-Fi', 'Entertainment', 'Meals', 'Priority boarding'] : 
-        ['Entertainment', 'Snacks']
-    })
-  }
-  
-  return flights.sort((a, b) => a.price - b.price)
-}
+import { generateRealisticFlights } from '../../../../lib/realisticFlightData.js'
 
 export async function POST(request) {
   const headers = {
@@ -66,26 +10,70 @@ export async function POST(request) {
   
   try {
     const searchParams = await request.json()
-    console.log('✈️ Flight search request:', searchParams)
+    console.log('✈️ Enhanced flight search request:', searchParams)
     
-    const flights = generateMockFlights(searchParams)
-    console.log(`📊 Generated ${flights.length} mock flights (sorted by price)`)
+    // Generate realistic flights using our enhanced data
+    const flights = generateRealisticFlights(searchParams)
+    console.log(`📊 Generated ${flights.length} realistic flights (sorted by price)`)
+    
+    // Add real-time pricing updates simulation
+    const flightsWithUpdates = flights.map(flight => ({
+      ...flight,
+      lastUpdated: new Date().toISOString(),
+      priceHistory: generatePriceHistory(flight.price),
+      availabilityStatus: generateAvailabilityStatus(),
+      bookingClass: 'Economy',
+      refundable: flight.quality === 'premium'
+    }))
     
     return NextResponse.json({ 
       success: true,
-      flights,
+      flights: flightsWithUpdates,
       searchParams,
-      mockData: true,
+      totalResults: flightsWithUpdates.length,
+      searchId: `search_${Date.now()}`,
+      currency: 'USD',
       timestamp: new Date().toISOString()
     }, { headers })
   } catch (error) {
-    console.error('Flight search error:', error)
+    console.error('Enhanced flight search error:', error)
     return NextResponse.json({ 
       success: false,
       error: 'Flight search failed',
       details: error.message
     }, { status: 500, headers })
   }
+}
+
+function generatePriceHistory(currentPrice) {
+  const history = []
+  let price = currentPrice
+  
+  for (let i = 7; i >= 0; i--) {
+    const date = new Date()
+    date.setDate(date.getDate() - i)
+    
+    // Add some realistic price variation
+    const variation = (Math.random() - 0.5) * 0.1 // ±5%
+    price = Math.round(currentPrice * (1 + variation))
+    
+    history.push({
+      date: date.toISOString().split('T')[0],
+      price
+    })
+  }
+  
+  return history
+}
+
+function generateAvailabilityStatus() {
+  const statuses = [
+    { seats: Math.floor(Math.random() * 9) + 1, message: 'Few seats left!' },
+    { seats: Math.floor(Math.random() * 20) + 10, message: 'Good availability' },
+    { seats: Math.floor(Math.random() * 50) + 25, message: 'Many seats available' }
+  ]
+  
+  return statuses[Math.floor(Math.random() * statuses.length)]
 }
 
 export async function OPTIONS(request) {
