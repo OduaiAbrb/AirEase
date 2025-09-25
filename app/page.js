@@ -1672,6 +1672,44 @@ export default function App() {
             </div>
           </div>
         </div>
+
+        <style jsx>{`
+          @keyframes flyAcrossHomepage {
+            0% { 
+              transform: translateX(-150px) translateY(-50%);
+              opacity: 0;
+            }
+            15% { 
+              opacity: 1;
+            }
+            85% { 
+              opacity: 1;
+            }
+            100% { 
+              transform: translateX(calc(100vw + 150px)) translateY(-50%);
+              opacity: 0;
+            }
+          }
+          
+          @keyframes fadeTrailHomepage {
+            0% { 
+              opacity: 0;
+              width: 0;
+            }
+            25% { 
+              opacity: 0.8;
+              width: 160px;
+            }
+            75% { 
+              opacity: 0.8;
+              width: 160px;
+            }
+            100% { 
+              opacity: 0;
+              width: 0;
+            }
+          }
+        `}</style>
       </div>
     )
   }
