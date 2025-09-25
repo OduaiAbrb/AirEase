@@ -10,8 +10,8 @@ import sys
 import os
 from datetime import datetime
 
-# Get base URL from environment
-BASE_URL = "https://airease.preview.emergentagent.com"
+# Get base URL from environment - test locally first due to external 502 routing issue
+BASE_URL = "http://localhost:3000"
 API_BASE = f"{BASE_URL}/api"
 
 def print_test_result(test_name, success, details=""):
