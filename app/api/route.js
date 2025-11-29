@@ -11,8 +11,8 @@ export async function GET(request) {
     message: 'Airease API is running!',
     version: '2.0',
     status: 'healthy',
-    features: ['Flight Search', 'Gemini AI Recommendations', 'Price Monitoring', 'Email Alerts'],
-    geminiAI: true,
+    features: ['Flight Search', 'AI Recommendations', 'Price Monitoring', 'Email Alerts'],
+    emergentLlm: true,
     timestamp: new Date().toISOString()
   }, { headers })
 }

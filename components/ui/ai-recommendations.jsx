@@ -13,7 +13,7 @@ export function AIRecommendationsCard({ flightData, onRecommendationsGenerated }
   const generateRecommendations = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/flights/ai-recommendations', {
+      const response = await fetch('/api/ai/recommendations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -40,7 +40,7 @@ export function AIRecommendationsCard({ flightData, onRecommendationsGenerated }
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2 text-purple-800">
             <Brain className="h-6 w-6" />
-            Gemini AI Travel Assistant
+            AI Travel Assistant
           </CardTitle>
           <p className="text-sm text-gray-600">Get personalized packing and travel recommendations</p>
         </CardHeader>
@@ -58,7 +58,7 @@ export function AIRecommendationsCard({ flightData, onRecommendationsGenerated }
             ) : (
               <>
                 <Sparkles className="h-4 w-4 mr-2" />
-                Generate Gemini AI Recommendations
+                Generate Smart Recommendations
               </>
             )}
           </Button>
@@ -86,10 +86,10 @@ export function AIRecommendationsCard({ flightData, onRecommendationsGenerated }
               {packingRecs.weather.temp}°C
             </Badge>
             <span className="text-sm text-gray-600">{packingRecs.weather.condition}</span>
-            {packingRecs.geminiAI && (
-              <Badge className="bg-green-100 text-green-800">
+            {packingRecs.aiGenerated && (
+              <Badge className="bg-purple-100 text-purple-800">
                 <Brain className="h-3 w-3 mr-1" />
-                Gemini AI
+                AI Generated
               </Badge>
             )}
           </div>
