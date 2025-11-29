@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
-import { generateAIRecommendations } from '../../../../lib/emergentLlm.js'
+import { 
+  generatePackingRecommendations, 
+  generateTravelTips, 
+  calculateTimeBudget 
+} from '../../../../lib/geminiAI.js'
 
 export async function POST(request) {
   const headers = {
@@ -10,21 +14,29 @@ export async function POST(request) {
   
   try {
     const { flightData } = await request.json()
-    console.log('🤖 AI recommendations requested for:', flightData.from, '→', flightData.to)
+    console.log('🤖 Gemini AI recommendations requested for:', flightData.from, '→', flightData.to)
     
-    const recommendations = await generateAIRecommendations(flightData)
+    // Generate comprehensive AI recommendations using Gemini
+    const [packingRecs, travelTips, timeBudget] = await Promise.all([
+      generatePackingRecommendations(flightData, { tripType: 'leisure', duration: '3-5 days' }),
+      generateTravelTips(flightData),
+      calculateTimeBudget(flightData)
+    ])
     
     return NextResponse.json({
       success: true,
-      recommendations,
+      packingRecs,
+      travelTips,
+      timeBudget,
       flightInfo: flightData,
+      geminiAI: true,
       timestamp: new Date().toISOString()
     }, { headers })
   } catch (error) {
-    console.error('AI recommendations error:', error)
+    console.error('Gemini AI recommendations error:', error)
     return NextResponse.json({ 
       success: false,
-      error: 'AI recommendations failed',
+      error: 'Gemini AI recommendations failed',
       details: error.message
     }, { status: 500, headers })
   }
